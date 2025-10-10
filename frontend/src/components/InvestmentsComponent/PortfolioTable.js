@@ -16,7 +16,7 @@ export const PortfolioTable = () => {
   return (
     <Table
       title="Portfolio"
-      fetchUrl="http://127.0.0.1:5000/api/portfolio"
+      fetchUrl="https://dons-website.onrender.com/api/portfolio"
       columns={columns}
       rowsPerPage={10}
     />

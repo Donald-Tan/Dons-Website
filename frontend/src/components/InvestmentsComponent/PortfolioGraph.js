@@ -94,7 +94,7 @@ export const PortfolioGraph = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://127.0.0.1:5000/api/portfolio/history?span=${tf.span}&interval=${tf.interval}&max_points=${MAX_POINTS}`,
+        `https://dons-website.onrender.com/api/portfolio/history?span=${tf.span}&interval=${tf.interval}&max_points=${MAX_POINTS}`,
         { signal: controller.signal }
       );
       const data = await res.json();

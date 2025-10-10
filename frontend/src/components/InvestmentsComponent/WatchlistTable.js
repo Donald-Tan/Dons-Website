@@ -23,7 +23,7 @@ export const WatchlistTable = () => {
   return (
     <Table
       title="Watchlist"
-      fetchUrl="http://127.0.0.1:5000/api/portfolio/watchlist"
+      fetchUrl="https://dons-website.onrender.com/api/portfolio/watchlist"
       columns={columns}
       processRow={processRow}
     />

@@ -32,7 +32,7 @@ export const TradesTable = () => {
   return (
     <Table
       title="Trades"
-      fetchUrl="http://127.0.0.1:5000/api/portfolio/trades"
+      fetchUrl="https://dons-website.onrender.com/api/portfolio/trades"
       columns={columns}
       rowsPerPage={10}
     />

@@ -26,7 +26,7 @@ const mapPctToGreen = (pct, minPct, maxPct) => {
 };
 
 export const PortfolioDiversityChart = ({
-  fetchUrl = "http://127.0.0.1:5000/api/portfolio",
+  fetchUrl = "https://dons-website.onrender.com/api/portfolio",
   pollInterval = 60000,
   othersThreshold = 0.02,
 }) => {
