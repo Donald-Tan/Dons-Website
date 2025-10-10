@@ -150,8 +150,10 @@ const ProjectModal = ({ project, onClose }) => {
         </button>
 
         <div className="modal-header">
-          <h2 className="modal-title">{project.title}</h2>
-          <p className="modal-subtitle">{project.subtitle}</p>
+          <div className="modal-header-content">
+            <h2 className="modal-title">{project.title}</h2>
+            <p className="modal-subtitle">{project.subtitle}</p>
+          </div>
         </div>
 
         <div className="modal-body">

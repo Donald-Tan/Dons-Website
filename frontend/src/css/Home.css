@@ -1,5 +1,5 @@
 /* =========================
-   HERO PARALLAX SECTION
+   HERO PARALLAX SECTION - SMOOTH
    ========================= */
    .hero-parallax {
     position: relative;
@@ -15,9 +15,9 @@
     inset: 0;
     background-size: cover;
     background-position: center;
-    transition: transform 0.1s ease-out;
     will-change: transform;
-    /* filter: grayscale(0.2) brightness(0.9); */
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
   }
   
   /* .hero-parallax-overlay {
@@ -38,6 +38,7 @@
     padding: 0 2rem;
     text-align: center;
   }
+  
   .hero-parallax-title {
     font-size: 5rem;
     color: white;
@@ -45,6 +46,7 @@
     margin-bottom: 0.5rem;
     font-family: 'Georgia', serif;
   }
+  
   .hero-parallax-desc {
     font-size: 1.375rem;
     color: rgba(255, 255, 255, 0.96);
@@ -155,12 +157,13 @@
   
   .work-header {
     background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
       0 4px 12px rgba(0, 0, 0, 0.15),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.2);  padding: 2.5rem;
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+    padding: 2.5rem;
     color: white;
     transition: all 0.3s ease;
   }
@@ -523,10 +526,10 @@
   }
   
   /* =========================
-     EDUCATION SECTION
+     EDUCATION SECTION - FIXED RESPONSIVE
      ========================= */
   .education-section {
-    padding: 4rem 1.5rem;
+    padding: 4rem 2rem;
     background: linear-gradient(135deg, var(--canyon-cream) 0%, #f5ebe0 100%);
     position: relative;
   }
@@ -549,7 +552,7 @@
   
   .education-intro {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 3rem;
   }
   
   .edu-icon-large {
@@ -581,8 +584,8 @@
   
   .education-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
     max-width: 1200px;
     margin: 0 auto;
   }
@@ -597,6 +600,12 @@
   
   .edu-card:hover {
     transform: translateY(-6px);
+  }
+  
+  .edu-bg {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
   }
   
   .edu-bg img {
@@ -871,7 +880,7 @@
   }
   
   .modal-header {
-    padding: 2.5rem 2.5rem 1.75rem;
+    padding: 3rem 2.5rem 2rem;
     background: linear-gradient(135deg, 
       color-mix(in srgb, var(--accent-color) 6%, white) 0%, 
       white 100%
@@ -880,21 +889,27 @@
     flex-shrink: 0;
   }
   
+  .modal-header-content {
+    max-width: 100%;
+  }
+  
   .modal-title {
-    font-size: 2.125rem;
+    font-size: 2.25rem;
     font-weight: 700;
     color: var(--canyon-deep);
-    margin: 0 0 0.625rem 0;
+    margin: 0 0 0.5rem 0;
     line-height: 1.2;
     letter-spacing: -0.02em;
+    font-family: 'Georgia', serif;
   }
   
   .modal-subtitle {
-    font-size: 1.125rem;
+    font-size: 1rem;
     color: var(--accent-color);
     font-weight: 600;
     margin: 0;
     line-height: 1.4;
+    letter-spacing: 0.01em;
   }
   
   .modal-body {
@@ -954,21 +969,40 @@
   }
   
   /* =========================
-     RESPONSIVE - TABLET
+     RESPONSIVE - TABLET (1024px and below)
      ========================= */
   @media (max-width: 1024px) {
-    .projects-grid {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
+    .hero-parallax-title {
+      font-size: 4rem;
+    }
+  
+    .hero-parallax-desc {
+      font-size: 1.25rem;
+    }
+  
+    .education-section {
+      padding: 3.5rem 1.5rem;
     }
   
     .education-cards {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 2rem;
     }
   
-    .edu-bg {
+    .edu-bg img {
       height: 280px;
+    }
+  
+    .edu-name {
+      font-size: 1.4rem;
+    }
+  
+    .edu-degree {
+      font-size: 0.9rem;
+    }
+  
+    .projects-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
     }
   
     .work-responsibilities {
@@ -986,17 +1020,67 @@
   }
   
   /* =========================
-     RESPONSIVE - MOBILE
+     RESPONSIVE - MOBILE (768px and below)
      ========================= */
   @media (max-width: 768px) {
+    .hero-parallax {
+      height: 100vh;
+    }
+  
+    .hero-parallax-title {
+      font-size: 3.5rem;
+    }
+  
     .hero-parallax-desc {
       font-size: 1.125rem;
+      line-height: 1.7;
+    }
+  
+    .hero-parallax-content {
+      padding: 0 1.5rem;
     }
   
     .work-section,
     .education-section,
     .projects-section {
       padding: 3rem 1rem;
+    }
+  
+    .education-intro {
+      margin-bottom: 2.5rem;
+    }
+  
+    .edu-main-title, .work-main-title, .projects-main-title {
+      font-size: 2rem;
+    }
+  
+    .edu-tagline, .work-tagline, .projects-tagline {
+      font-size: 0.95rem;
+    }
+  
+    .education-cards {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+  
+    .edu-bg img {
+      height: 250px;
+    }
+  
+    .edu-name {
+      font-size: 1.375rem;
+    }
+  
+    .edu-degree {
+      font-size: 0.875rem;
+    }
+  
+    .edu-meta {
+      font-size: 0.8125rem;
+    }
+  
+    .courses-list li {
+      font-size: 0.8125rem;
     }
   
     .work-header {
@@ -1029,27 +1113,6 @@
       padding: 1.5rem;
     }
   
-    .education-cards {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
-    }
-  
-    .edu-bg {
-      height: 250px;
-    }
-  
-    .edu-name {
-      font-size: 1.375rem;
-    }
-  
-    .edu-degree {
-      font-size: 0.875rem;
-    }
-  
-    .courses-list li {
-      font-size: 0.8125rem;
-    }
-  
     .timeline-grid {
       grid-template-columns: 1fr;
     }
@@ -1059,12 +1122,8 @@
       gap: 1rem;
     }
   
-    .project-grid-card {
-      padding: 1.25rem;
-    }
-  
     .modal-header {
-      padding: 2rem 1.75rem 1.5rem;
+      padding: 2.5rem 1.75rem 1.75rem;
     }
   
     .modal-body {
@@ -1076,11 +1135,11 @@
     }
   
     .modal-title {
-      font-size: 1.75rem;
+      font-size: 1.875rem;
     }
   
     .modal-subtitle {
-      font-size: 1rem;
+      font-size: 0.9375rem;
     }
   
     .modal-description p {
@@ -1089,7 +1148,7 @@
   }
   
   /* =========================
-     RESPONSIVE - SMALL MOBILE
+     RESPONSIVE - SMALL MOBILE (480px and below)
      ========================= */
   @media (max-width: 480px) {
     .hero-parallax {
@@ -1097,12 +1156,17 @@
     }
   
     .hero-parallax-title {
-      font-size: 3.5rem;
+      font-size: 2.75rem;
     }
   
     .hero-parallax-desc {
       font-size: 1rem;
-      line-height: 1.7;
+      line-height: 1.65;
+      margin-bottom: 2rem;
+    }
+  
+    .hero-parallax-content {
+      padding: 0 1rem;
     }
   
     .hero-cta-group {
@@ -1111,20 +1175,29 @@
       gap: 0.75rem;
     }
   
+    .scroll-indicator {
+      bottom: 1.5rem;
+    }
+  
+    .scroll-icon {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+  
     .work-section,
     .education-section,
     .projects-section {
       padding: 2.5rem 1rem;
     }
   
-    .work-main-title,
-    .edu-main-title,
-    .projects-main-title {
+    .edu-main-title, .work-main-title, .projects-main-title {
       font-size: 1.75rem;
+      margin-bottom: 1rem;
     }
   
     .edu-tagline, .work-tagline, .projects-tagline {
       font-size: 0.875rem;
+      line-height: 1.7;
     }
   
     .work-icon-large,
@@ -1132,6 +1205,62 @@
     .projects-icon-large {
       width: 2rem;
       height: 2rem;
+    }
+  
+    .education-intro {
+      margin-bottom: 2rem;
+    }
+  
+    .education-cards {
+      gap: 2rem;
+    }
+  
+    .edu-bg img {
+      height: 220px;
+    }
+  
+    .edu-bg img[alt="University of Washington"] {
+      border-radius: 30px 0px 30px 0px;
+    }
+  
+    .edu-bg img[alt="Seattle Central College"] {
+      border-radius: 0px 30px 0px 30px;
+    }
+  
+    .edu-content {
+      padding: 1.25rem 0;
+    }
+  
+    .edu-name {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+  
+    .edu-degree {
+      font-size: 0.8125rem;
+      margin-bottom: 0.4rem;
+    }
+  
+    .edu-meta {
+      font-size: 0.75rem;
+      margin-bottom: 1rem;
+    }
+  
+    .courses-section {
+      margin-top: 0.4rem;
+    }
+  
+    .courses-label {
+      font-size: 0.6875rem;
+      margin-bottom: 0.6rem;
+    }
+  
+    .courses-list {
+      gap: 0.4rem;
+    }
+  
+    .courses-list li {
+      font-size: 0.75rem;
     }
   
     .work-header {
@@ -1245,50 +1374,14 @@
       font-size: 1rem;
     }
   
-    .education-cards {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-    }
-  
-    .edu-bg {
-      height: 220px;
-    }
-  
-    .edu-bg img[alt="University of Washington"]{
-      border-radius: 30px 0px 30px 0px;
-    }
-  
-    .edu-bg img[alt="Seattle Central College"]{
-      border-radius: 0px 30px 0px 30px;
-    }
-  
-    .edu-content {
-      padding: 1.25rem 0;
-    }
-  
-    .edu-name {
-      font-size: 1.25rem;
-    }
-  
-    .edu-degree {
-      font-size: 0.8125rem;
-    }
-  
-    .edu-meta {
-      font-size: 0.8125rem;
-      margin-bottom: 1rem;
-    }
-  
-    .courses-label {
-      font-size: 0.6875rem;
-    }
-  
-    .courses-list li {
-      font-size: 0.8125rem;
-    }
-  
+    /* PHONE: 2 CARDS PER ROW */
     .projects-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.875rem;
+    }
+  
+    .project-grid-card {
+      padding: 1.25rem;
     }
   
     .project-modal-overlay {
@@ -1303,7 +1396,7 @@
     }
   
     .modal-header {
-      padding: 1.75rem 1.25rem 1.25rem;
+      padding: 2rem 1.25rem 1.5rem;
     }
   
     .modal-body {
@@ -1315,11 +1408,11 @@
     }
   
     .modal-title {
-      font-size: 1.5rem;
+      font-size: 1.625rem;
     }
   
     .modal-subtitle {
-      font-size: 0.9375rem;
+      font-size: 0.875rem;
     }
   
     .modal-tech {
@@ -1334,6 +1427,62 @@
     .modal-description p:first-child {
       font-size: 0.9375rem;
       padding-left: 0;
+    }
+  }
+  
+  /* =========================
+     EXTRA SMALL DEVICES (360px and below)
+     ========================= */
+  @media (max-width: 360px) {
+    .hero-parallax-title {
+      font-size: 2.25rem;
+    }
+  
+    .hero-parallax-desc {
+      font-size: 0.9rem;
+    }
+  
+    .edu-main-title, .work-main-title, .projects-main-title {
+      font-size: 1.5rem;
+    }
+  
+    .edu-bg img {
+      height: 200px;
+    }
+  
+    .edu-name {
+      font-size: 1.15rem;
+    }
+  
+    .edu-degree {
+      font-size: 0.75rem;
+    }
+  
+    .courses-list li {
+      font-size: 0.7rem;
+    }
+  
+    /* KEEP 2 CARDS PER ROW ON EXTRA SMALL */
+    .projects-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+  
+    .project-grid-card {
+      padding: 1rem;
+    }
+  
+    .project-grid-title {
+      font-size: 1.125rem;
+    }
+  
+    .project-grid-subtitle {
+      font-size: 0.8125rem;
+    }
+  
+    .project-year-badge {
+      font-size: 0.6875rem;
+      padding: 0.3rem 0.65rem;
     }
   }
   

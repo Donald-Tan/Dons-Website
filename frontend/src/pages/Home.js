@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import homeHero from "../assets/homeHero.png";
 import Education from "../components/Education";
@@ -7,24 +7,47 @@ import Projects from "../components/Projects";
 
 const Home = () => {
   const [scrollY, setScrollY] = useState(0);
+  const bgRef = useRef(null);
+  const rafRef = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    let ticking = false;
 
-  const parallaxOffset = scrollY * 0.5;
+    const handleScroll = () => {
+      const currentScroll = window.scrollY;
+
+      if (!ticking) {
+        rafRef.current = window.requestAnimationFrame(() => {
+          setScrollY(currentScroll);
+          if (bgRef.current) {
+            const parallaxOffset = currentScroll * 0.5;
+            bgRef.current.style.transform = `translate3d(0, ${parallaxOffset}px, 0)`;
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafRef.current) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="portfolio-home">
       {/* Hero Section with Parallax */}
       <section className="hero-parallax">
         <div
+          ref={bgRef}
           className="hero-parallax-bg"
           style={{
             backgroundImage: `url(${homeHero})`,
-            transform: `translateY(${parallaxOffset}px)`,
           }}
         />
         <div className="hero-parallax-overlay" />

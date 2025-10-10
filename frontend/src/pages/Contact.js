@@ -58,7 +58,7 @@ const Contact = () => {
               </a>
 
               <a
-                href="https://linkedin.com/in/yourprofile"
+                href="https://www.linkedin.com/in/donald-augustine-tan"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="contact-card"
@@ -68,12 +68,12 @@ const Contact = () => {
                 </div>
                 <div className="contact-card-content">
                   <h3 className="contact-card-title">LinkedIn</h3>
-                  <p className="contact-card-text">Connect with me</p>
+                  <p className="contact-card-text">donald-augustine-tan</p>
                 </div>
               </a>
 
               <a
-                href="https://github.com/yourprofile"
+                href="https://github.com/Donald-Tan"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="contact-card"
@@ -83,7 +83,7 @@ const Contact = () => {
                 </div>
                 <div className="contact-card-content">
                   <h3 className="contact-card-title">GitHub</h3>
-                  <p className="contact-card-text">View my code</p>
+                  <p className="contact-card-text">Donald-Tan</p>
                 </div>
               </a>
             </div>
