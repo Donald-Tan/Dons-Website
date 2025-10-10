@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import homeHero from "../assets/homeHero.png";
 import Education from "../components/Education";
@@ -6,7 +6,6 @@ import Work from "../components/Work";
 import Projects from "../components/Projects";
 
 const Home = () => {
-  const [scrollY, setScrollY] = useState(0);
   const bgRef = useRef(null);
   const rafRef = useRef(null);
 
@@ -18,7 +17,6 @@ const Home = () => {
 
       if (!ticking) {
         rafRef.current = window.requestAnimationFrame(() => {
-          setScrollY(currentScroll);
           if (bgRef.current) {
             const parallaxOffset = currentScroll * 0.5;
             bgRef.current.style.transform = `translate3d(0, ${parallaxOffset}px, 0)`;
