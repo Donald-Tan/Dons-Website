@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/static/css/main.0db8b199.css",
+    "main.js": "/static/js/main.feea9488.js",
+    "static/js/453.e9b5501d.chunk.js": "/static/js/453.e9b5501d.chunk.js",
+    "static/media/profile.png": "/static/media/profile.b97097a10d51bb672b74.png",
+    "static/media/hero.png": "/static/media/hero.9f33300f0f0e4c313128.png",
+    "static/media/InvestmentProfile.png": "/static/media/InvestmentProfile.f108c4be6076458d9ad3.png",
+    "static/media/uw.png": "/static/media/uw.5c1abb28da1bd0b2a83b.png",
+    "static/media/scc.png": "/static/media/scc.098e2a0d2c4748f87f44.png",
+    "index.html": "/index.html",
+    "main.0db8b199.css.map": "/static/css/main.0db8b199.css.map",
+    "main.feea9488.js.map": "/static/js/main.feea9488.js.map",
+    "453.e9b5501d.chunk.js.map": "/static/js/453.e9b5501d.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0db8b199.css",
+    "static/js/main.feea9488.js"
+  ]
+}

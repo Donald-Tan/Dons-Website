@@ -1,0 +1,1015 @@
+/* =========================
+   INVESTMENT.CSS - GLASSMORPHISM
+   Includes: Dashboard, Charts, Tables, Search, Pagination
+   ========================= */
+
+/* =========================
+   DASHBOARD & INVESTMENTS
+   ========================= */
+   .dashboard-grid {
+    display: grid;
+    max-width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    margin: 6rem auto 6rem auto;
+    justify-content: center;
+    align-items: start;
+    box-sizing: border-box;
+  }
+  
+  /* Graph Box - 2 columns, height matches chart/profile boxes */
+  .graph-box {
+    display: flex;
+    flex-direction: column;
+    grid-column: span 2;
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Chart Box - 1 column, 1:1 aspect ratio (square) */
+  .chart-box {
+    display: flex;
+    flex-direction: column;
+    grid-column: span 1;
+    aspect-ratio: 1 / 1;
+    min-width: 0;
+    width: 100%;
+  }
+  
+  /* Profile Box - 1 column, 1:1 aspect ratio (square) */
+  .profile-box {
+    display: flex;
+    flex-direction: column;
+    grid-column: span 1;
+    aspect-ratio: 1 / 1;
+    min-width: 0;
+    width: 100%;
+  }
+  
+  /* Tables - 2 columns each (half width) */
+  .portfolio-box,
+  .trades-box {
+    display: flex;
+    flex-direction: column;
+    grid-column: span 2;
+    min-width: 0;
+    width: 100%;
+  }
+  
+  /* Portfolio Graph Card - Glassmorphism */
+  .portfolio-graph-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.1),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  
+  .graph-header {
+    padding: 0rem 0.75rem;
+    display: flex;
+    gap: 3%;
+    align-items: center; 
+    margin-bottom: 0.5rem;
+    flex-shrink: 0;
+  }
+  
+  .timeframe-selector {
+    flex-shrink: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .chart-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .portfolio-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+/* Add these gain/loss classes to your existing CSS */
+.gain {
+  color: var(--color-success, #16a34a) !important;
+  font-weight: 500;
+}
+
+.loss {
+  color: var(--color-error, #dc2626) !important;
+  font-weight: 500;
+}
+  
+  /* Timeframe Selector */
+  .timeframe-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: left;
+  }
+  
+  /* Timeframe Button - Glassmorphism */
+  .timeframe-btn {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 9999px;
+    font-weight: 500;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    box-shadow: 
+      0 4px 12px 0 rgba(31, 38, 135, 0.08),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    color: var(--color-secondary, #666);
+  }
+  
+  .timeframe-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 
+      0 6px 16px 0 rgba(31, 38, 135, 0.12),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  }
+  
+  .timeframe-btn.active {
+    background: rgba(16, 185, 129, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 
+      0 6px 20px 0 rgba(16, 185, 129, 0.3),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+  }
+  
+  .loader {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-top: 2px solid #10b981;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Portfolio Chart Card - Glassmorphism */
+  .portfolio-chart-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.1),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    box-sizing: border-box;
+    position: relative;
+  }
+  
+  .portfolio-chart-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+
+  .portfolio-chart-inner *,
+  .chart-container * {
+    outline: none !important;
+  }
+
+  .portfolio-chart-inner path:focus,
+  .portfolio-chart-inner g:focus {
+    outline: none !important;
+  }
+
+  /* Pie Chart Slice Labels - Responsive */
+  .pie-slice-label {
+    font-size: 11px;
+    font-weight: 600;
+    pointer-events: none;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+/* Pie Chart Center Content - Perfectly centered black text */
+.pie-center-content {
+  font-family: 'Inter', sans-serif;
+  text-anchor: middle;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.pie-center-group text {
+  opacity: 1;
+}
+.pie-name {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.pie-value {
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+.pie-percentage {
+  font-weight: 400;
+  font-size: 0.9rem;
+  fill: #555; /* optional: subtle color */
+}
+/* Ensure proper centering of the entire chart */
+.portfolio-chart-inner .recharts-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive pie slice labels */
+.pie-slice-label {
+  font-size: clamp(8px, 1.5vw, 12px);
+  font-weight: 600;
+  pointer-events: none;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+  /* Portfolio Pie Chart Tooltip - Glassmorphism with proper positioning */
+  .portfolio-pie-tooltip {
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    padding: 6px 10px;
+    border-radius: 10px;
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.15),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+    white-space: nowrap;
+    width: auto;
+    max-width: calc(100vw - 40px);
+    display: block;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Fix recharts tooltip positioning */
+  .recharts-tooltip-wrapper {
+    outline: none !important;
+  }
+
+  .portfolio-pie-tooltip .tooltip-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+
+  .portfolio-pie-tooltip .tooltip-value {
+    color: #666;
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+  
+  .chart-tooltip {
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    color: var(--color-primary, #333);
+    display: inline-block;
+    line-height: 1.2;
+  }
+  
+  .chart-empty {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .chart-error {
+    color: #b91c1c;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+  }
+  
+  /* Investment Profile Card - Glassmorphism */
+  .investment-profile-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.1),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  
+  .investment-profile-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 1.2rem;
+    flex-shrink: 0;
+  }
+  
+  .profile-pic {
+    width: 5rem;
+    height: 5rem;
+    border-radius: 20%;
+    object-fit: cover;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+  }
+  
+  .profile-name-age {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .profile-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #371809;
+    word-wrap: break-word;
+  }
+  
+  .profile-age {
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .profile-stats {
+    display: flex;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #333;
+    margin-top: 4px;
+    opacity: 0.85;
+    flex-wrap: wrap;
+  }
+  
+  .profile-story {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #222;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+  
+  .profile-story p {
+    margin: 0;
+  }
+  
+  /* =========================
+     TABLES - GLASSMORPHISM
+     ========================= */
+  .table-container {
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 
+      0 8px 32px 0 rgba(31, 38, 135, 0.1),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+    height: 100%;
+  }
+  
+  .table-header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+    min-height: 60px;
+  }
+  
+  .table-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--color-primary, #333);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  
+  .table-wrapper {
+    overflow-x: auto;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+  }
+  
+  .table-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .table-wrapper::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+  
+  .table-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+  }
+  
+  .table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .table th,
+  .table td {
+    text-align: left;
+    color: var(--color-secondary, #666);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    max-width: 150px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    padding: 0.35rem 1rem;
+  }
+  .table th.text-right,
+  .table td.text-right {
+    text-align: right;
+  }
+  
+  .table th {
+    background: rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+    color: var(--color-primary, #333);
+    position: sticky;
+    backdrop-filter: blur(6px);
+  }
+  
+  .table tbody tr {
+    transition: background 0.2s ease;
+  }
+  
+  .table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .table td.text-center {
+    text-align: center;
+  }
+  
+  .text-red-500 {
+    color: var(--color-error, #dc2626);
+  }
+  
+  .table-status-message {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: var(--color-secondary, #666);
+  }
+  
+  /* =========================
+     SEARCH BAR - GLASSMORPHISM
+     ========================= */
+  .search-bar-wrapper {
+    display: flex;
+    align-items: center;
+    width: 50px;
+    max-width: 200px;
+    padding: 0.3rem 0.8rem;
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    border-radius: 50px;
+    box-shadow: 
+      0 4px 16px 0 rgba(31, 38, 135, 0.1),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    transition: width 0.6s ease, padding 0.6s ease;
+  }
+  
+  .search-bar-wrapper.expanded {
+    width: 100%;
+  }
+  
+  .search-input {
+    border: none;
+    outline: none;
+    margin-left: 0.5rem;
+    font-size: 0.95rem;
+    width: 100%;
+    opacity: 0;
+    background: transparent;
+    transition: opacity 0.3s ease;
+    color: var(--color-secondary, #666);
+  }
+  
+  .search-bar-wrapper.expanded .search-input {
+    opacity: 1;
+  }
+  
+  .search-icon {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    filter: brightness(0.7);
+    flex-shrink: 0;
+  }
+  
+  /* =========================
+     PAGINATION - GLASSMORPHISM
+     ========================= */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    padding: 1rem 0;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .pagination button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    box-shadow: 
+      0 4px 12px 0 rgba(31, 38, 135, 0.08),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+    color: var(--color-secondary, #666);
+    transition: all 0.2s ease;
+  }
+  
+  .pagination button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: var(--color-primary, #333);
+    transform: scale(1.05);
+    box-shadow: 
+      0 6px 16px 0 rgba(31, 38, 135, 0.12),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  }
+  
+  .pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  
+  .pagination span {
+    margin: 0 0.5rem;
+    color: var(--color-secondary, #666);
+    font-weight: 500;
+  }
+  
+  /* =========================
+     RESPONSIVE - INVESTMENT
+     ========================= */
+  
+  /* Tablet - Show 2 columns minimum */
+  @media (max-width: 1024px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(2, 1fr);
+      padding: 1rem;
+      margin-top: 5rem;
+    }
+  
+    .graph-box {
+      grid-column: span 2;
+      aspect-ratio: 2 / 1;
+    }
+  
+    .chart-box,
+    .profile-box {
+      grid-column: span 1;
+      aspect-ratio: 1 / 1;
+    }
+  
+    .portfolio-box,
+    .trades-box {
+      grid-column: span 2;
+    }
+
+    /* Tablet pie slice labels */
+    .pie-slice-label {
+      font-size: 10px;
+    }
+
+    /* Responsive center content */
+    .pie-center-name {
+      font-size: 13px;
+    }
+    
+    .pie-center-value {
+      font-size: 11px;
+    }
+    
+    .pie-center-percentage {
+      font-size: 10px;
+    }
+  }
+  
+  /* Mobile - Always show at least 2 columns worth of width */
+  @media (max-width: 768px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(2, 1fr);
+      padding: 1rem 0.75rem;
+      margin-top: 5rem;
+      gap: 0.75rem;
+    }
+  
+    .graph-box {
+      grid-column: span 2;
+      aspect-ratio: 2 / 1;
+      min-height: 250px;
+    }
+  
+    .chart-box,
+    .profile-box {
+      grid-column: span 1;
+      aspect-ratio: 1 / 1;
+    }
+  
+    .portfolio-box,
+    .trades-box {
+      grid-column: span 2;
+    }
+  
+    .portfolio-chart-card,
+    .portfolio-graph-card,
+    .investment-profile-card {
+      padding: 0.75rem;
+    }
+
+    /* Responsive tooltip for mobile */
+    .portfolio-pie-tooltip {
+      padding: 5px 8px;
+      border-radius: 8px;
+      max-width: calc(100vw - 40px);
+      white-space: normal;
+    }
+
+    .portfolio-pie-tooltip .tooltip-name {
+      font-size: 0.75rem;
+    }
+
+    .portfolio-pie-tooltip .tooltip-value {
+      font-size: 0.7rem;
+    }
+
+    /* Responsive pie slice labels */
+    .pie-slice-label {
+      font-size: 9px;
+    }
+
+    /* Responsive center content */
+    .pie-center-name {
+      font-size: 12px;
+    }
+    
+    .pie-center-value {
+      font-size: 10px;
+    }
+    
+    .pie-center-percentage {
+      font-size: 9px;
+    }
+  
+    .profile-pic {
+      width: 4rem;
+      height: 4rem;
+    }
+  
+    .profile-name {
+      font-size: 1rem;
+    }
+  
+    .profile-age {
+      font-size: 0.85rem;
+    }
+  
+    .profile-stats {
+      font-size: 0.75rem;
+      gap: 6px;
+    }
+  
+    .profile-story {
+      font-size: 0.85rem;
+    }
+  
+    .graph-header {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      padding: 0rem 0.75rem 0rem 0.5rem;
+    }
+  
+    .portfolio-value {
+      font-size: 1.15rem;
+    }
+  
+    .timeframe-selector {
+      width: 100%;
+      justify-content: flex-start;
+    }
+  
+    .timeframe-btn {
+      font-size: 0.6rem;
+      padding: 0.2rem 0.5rem;
+    }
+  
+    .table-header {
+      padding: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      min-height: 50px;
+    }
+  
+    .table-title {
+      font-size: 1rem;
+      text-align: center;
+      order: -1;
+    }
+  
+    .search-bar-wrapper.expanded {
+      width: 100%;
+      max-width: none;
+      order: 1;
+    }
+  
+    .table th,
+    .table td {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+    }
+  
+    .pagination {
+      font-size: 0.85rem;
+      padding: 0.75rem 0;
+    }
+  
+    .pagination button {
+      width: 28px;
+      height: 28px;
+      font-size: 0.85rem;
+    }
+  }
+  
+  /* Small Mobile - Keep 2 column grid */
+  @media (max-width: 480px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(2, 1fr);
+      margin-top: 4.5rem;
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+  
+    .graph-box {
+      grid-column: span 2;
+      aspect-ratio: 2 / 1;
+    }
+  
+    .chart-box,
+    .profile-box {
+      grid-column: span 1;
+      aspect-ratio: 1 / 1;
+    }
+  
+    .portfolio-box,
+    .trades-box {
+      grid-column: span 2;
+    }
+  
+    .portfolio-graph-card,
+    .portfolio-chart-card,
+    .investment-profile-card {
+      padding: 0.5rem;
+    }
+
+    /* Extra small tooltip for small mobile */
+    .portfolio-pie-tooltip {
+      padding: 4px 7px;
+      border-radius: 7px;
+      max-width: calc(100vw - 50px);
+      white-space: normal;
+    }
+
+    .portfolio-pie-tooltip .tooltip-name {
+      font-size: 0.7rem;
+    }
+
+    .portfolio-pie-tooltip .tooltip-value {
+      font-size: 0.65rem;
+    }
+
+    /* Smaller pie slice labels for small mobile */
+    .pie-slice-label {
+      font-size: 7px;
+    }
+
+    /* Responsive center content */
+    .pie-center-name {
+      font-size: 11px;
+    }
+    
+    .pie-center-value {
+      font-size: 9px;
+    }
+    
+    .pie-center-percentage {
+      font-size: 8px;
+    }
+  
+    .portfolio-value {
+      font-size: 1rem;
+    }
+  
+    .portfolio-change {
+      font-size: 0.85rem;
+    }
+  
+    .profile-pic {
+      width: 3.5rem;
+      height: 3.5rem;
+    }
+  
+    .profile-name {
+      font-size: 0.9rem;
+    }
+  
+    .profile-age {
+      font-size: 0.8rem;
+    }
+  
+    .profile-stats {
+      font-size: 0.7rem;
+      gap: 4px;
+    }
+  
+    .profile-story {
+      font-size: 0.8rem;
+    }
+    .table th,
+    .table td {
+      padding: 0.4rem 0.5rem;
+      font-size: 0.8rem;
+    }
+  
+    .table-title {
+      font-size: 0.9rem;
+    }
+  
+    .pagination {
+      padding: 0.5rem 0;
+    }
+  }
+
+  /* Extra Small Mobile - Very small devices */
+  @media (max-width: 360px) {
+    .pie-slice-label {
+      font-size: 6px;
+    }
+
+    .portfolio-pie-tooltip {
+      max-width: calc(100vw - 60px);
+      padding: 3px 6px;
+    }
+
+    .portfolio-pie-tooltip .tooltip-name {
+      font-size: 0.65rem;
+    }
+
+    .portfolio-pie-tooltip .tooltip-value {
+      font-size: 0.6rem;
+    }
+
+    /* Responsive center content for very small devices */
+    .pie-center-name {
+      font-size: 10px;
+    }
+    
+    .pie-center-value {
+      font-size: 8px;
+    }
+    
+    .pie-center-percentage {
+      font-size: 7px;
+    }
+  }
+  
+  @media (max-width: 768px), (max-width: 480px) {
+    .table-wrapper,
+  .table td {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .table-wrapper::-webkit-scrollbar,
+  .table td::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge (mobile) */
+  }
+
+  /* Show scrollbar only while actively scrolling */
+  .table-wrapper:active::-webkit-scrollbar,
+  .table-wrapper:focus::-webkit-scrollbar,
+  .table td:active::-webkit-scrollbar,
+  .table td:focus::-webkit-scrollbar {
+    display: block;
+  }
+  }

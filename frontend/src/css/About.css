@@ -1,0 +1,444 @@
+/* =========================
+   MINIMALIST ABOUT.CSS - GLASSMORPHISM
+   ========================= */
+
+/* Base */
+.about-page {
+  width: 100%;
+  color: #292524;
+  position: relative;
+}
+
+.about-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 30% 40%, rgba(155, 126, 92, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(201, 163, 106, 0.08) 0%, transparent 50%);
+}
+
+/* Hero Section */
+.about-hero {
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rem 2rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.about-hero-content {
+  max-width: 1200px;
+  width: 100%;
+  text-align: center;
+}
+
+.profile-image {
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fde68a, #d6d3d1);
+  margin: 0 auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* Story Section */
+.about-story {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.story-text {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: #57534e;
+  margin-bottom: 1.5rem;
+}
+
+.story-text:last-child {
+  margin-bottom: 0;
+}
+
+/* Timeline Section */
+.about-timeline {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #292524;
+}
+
+.timeline-container {
+  position: relative;
+}
+
+/* Horizontal Timeline (Desktop) */
+@media (min-width: 769px) {
+  .timeline-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    padding-top: 3rem;
+  }
+
+  .timeline-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e7e5e4;
+    transform-origin: left;
+    animation: expandLine 1.5s ease-out forwards;
+  }
+
+  @keyframes expandLine {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  .timeline-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 0 1rem;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .timeline-item.animate {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .timeline-item:nth-child(1).animate { animation-delay: 0.2s; }
+  .timeline-item:nth-child(2).animate { animation-delay: 0.4s; }
+  .timeline-item:nth-child(3).animate { animation-delay: 0.6s; }
+  .timeline-item:nth-child(4).animate { animation-delay: 0.8s; }
+  .timeline-item:nth-child(5).animate { animation-delay: 1s; }
+
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #895330;
+    border: 3px solid #fafaf9;
+    z-index: 2;
+  }
+
+  .timeline-item.animate::before {
+    animation: popIn 0.4s ease-out forwards;
+    animation-delay: inherit;
+  }
+
+  @keyframes popIn {
+    0% {
+      transform: translateX(-50%) scale(0);
+    }
+    50% {
+      transform: translateX(-50%) scale(1.2);
+    }
+    100% {
+      transform: translateX(-50%) scale(1);
+    }
+  }
+
+  .timeline-year {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #895330;
+    margin-bottom: 0.5rem;
+    margin-top: 3rem;
+  }
+
+  .timeline-content h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #292524;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-content p {
+    font-size: 0.95rem;
+    color: #78716c;
+    line-height: 1.5;
+  }
+}
+
+/* Vertical Timeline (Mobile) */
+@media (max-width: 768px) {
+  .timeline-container {
+    position: relative;
+    padding-left: 2.5rem;
+  }
+
+  .timeline-container::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e7e5e4;
+    transform-origin: top;
+    animation: expandLineVertical 1.5s ease-out forwards;
+  }
+
+  @keyframes expandLineVertical {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    padding: 0 0 2rem 1.5rem;
+    position: relative;
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  .timeline-item.animate {
+    animation: fadeInRight 0.6s ease-out forwards;
+  }
+
+  .timeline-item:nth-child(1).animate { animation-delay: 0.2s; }
+  .timeline-item:nth-child(2).animate { animation-delay: 0.4s; }
+  .timeline-item:nth-child(3).animate { animation-delay: 0.6s; }
+  .timeline-item:nth-child(4).animate { animation-delay: 0.8s; }
+  .timeline-item:nth-child(5).animate { animation-delay: 1s; }
+
+  @keyframes fadeInRight {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -2.5rem;
+    top: 0.35rem;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #895330;
+    border: 3px solid #fafaf9;
+    z-index: 2;
+    transform: scale(0);
+  }
+
+  .timeline-item.animate::before {
+    animation: popIn 0.4s ease-out forwards;
+    animation-delay: inherit;
+  }
+
+  .timeline-year {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #895330;
+    min-width: 60px;
+    flex-shrink: 0;
+  }
+
+  .timeline-content h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #292524;
+    margin-bottom: 0.25rem;
+  }
+
+  .timeline-content p {
+    font-size: 0.95rem;
+    color: #78716c;
+  }
+}
+
+/* Skills Section */
+.about-skills {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
+  position: relative;
+  z-index: 1;
+}
+
+.skills-categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 3rem;
+  margin-top: 3rem;
+}
+
+.skills-category {
+  text-align: center;
+}
+
+.skills-category h3 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #292524;
+  margin-bottom: 1.5rem;
+}
+
+.skills-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* Skill Tag - Glassmorphism Button */
+.skill-tag {
+  padding: 0.6rem 1.25rem;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  box-shadow: 
+    0 4px 16px 0 rgba(31, 38, 135, 0.08),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  color: #57534e;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.skill-tag:hover {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(155, 126, 92, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 24px 0 rgba(31, 38, 135, 0.12),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+}
+
+/* =========================
+   RESPONSIVE - TABLET
+   ========================= */
+@media (max-width: 1024px) {
+  .about-hero {
+    padding: 6rem 1.5rem 2.5rem;
+  }
+
+  .about-story,
+  .about-timeline {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .about-skills {
+    padding: 2.5rem 1.5rem 5rem;
+  }
+}
+
+/* =========================
+   RESPONSIVE - MOBILE
+   ========================= */
+@media (max-width: 768px) {
+  .about-hero {
+    padding: 5rem 1.5rem 2rem;
+  }
+
+  .profile-image {
+    width: 100px;
+    height: 100px;
+  }
+
+  .about-story,
+  .about-timeline {
+    padding: 2rem 1.5rem;
+  }
+
+  .about-skills {
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .story-text {
+    font-size: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .skills-categories {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+/* =========================
+   RESPONSIVE - SMALL MOBILE
+   ========================= */
+@media (max-width: 480px) {
+  .about-hero {
+    padding: 4rem 1rem 1.5rem;
+  }
+
+  .profile-image {
+    width: 90px;
+    height: 90px;
+  }
+
+  .about-story,
+  .about-timeline {
+    padding: 1.5rem 1rem;
+  }
+
+  .about-skills {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .timeline-container {
+    padding-left: 2rem;
+  }
+
+  .timeline-item {
+    padding-left: 1rem;
+  }
+
+  .timeline-item::before {
+    left: -2rem;
+  }
+}

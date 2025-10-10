@@ -1,0 +1,33 @@
+.coming-soon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: black;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  
+  .coming-soon h1 {
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+  }
+
+
+  @media (max-width: 768px) {
+    .coming-soon h1 {
+      font-size: 1.2rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .coming-soon h1 {
+      font-size: .8rem;
+    }
+  }   
+  
+  @media (max-width: 320px) {
+    .coming-soon h1 {
+      font-size: .6rem;
+    }
+  }
