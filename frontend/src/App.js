@@ -15,7 +15,7 @@ import {
 import { useEffect } from "react";
 import { NavBar } from "./components/NavBar";
 import Home from "./pages/Home";
-import Investments from "./pages/Investments";
+import Investment from "./pages/Investment";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import { Featured } from "./pages/Featured";
@@ -44,7 +44,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/About" element={<About />} />
         <Route path="/Contact" element={<Contact />} />
-        <Route path="/Investments" element={<Investments />} />
+        <Route path="/Investment" element={<Investment />} />
         <Route path="/Travel" element={<Travel />} />
         <Route path="/Featured" element={<Featured />} />
       </Routes>
