@@ -1,8 +1,8 @@
 fastapi
-supabase
-apscheduler
-uvicorn
+uvicorn[standard]
 gunicorn
+apscheduler
+supabase
 httpx
 python-dotenv
 robin_stocks

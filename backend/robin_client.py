@@ -1,34 +1,49 @@
 # robin_client.py
-import robin_stocks.robinhood as r
-from datetime import datetime, timezone, timedelta
-import pytz
-import requests
-import threading
-import time
+# Async-friendly wrapper around synchronous robin_stocks usage.
+# - All blocking I/O runs inside asyncio.to_thread()
+# - Small retry/backoff helpers for network resilience
+# - Preserves original behavior/outputs but exposes async functions
+
 import os
+import time
+import threading
+import requests
+import asyncio
+from datetime import datetime, timezone, timedelta
+from typing import List, Dict, Any, Optional, Callable
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# try to import robin_stocks (synchronous lib)
+try:
+    import robin_stocks.robinhood as r  # type: ignore
+except Exception:
+    r = None  # safe fallback; callers will handle if r is None
+
+import pytz
+
+# env
 RH_USERNAME = os.getenv("RH_USERNAME")
 RH_PASSWORD = os.getenv("RH_PASSWORD")
 
+# internal login state
 _logged_in = False
 _log_lock = threading.Lock()
 
-# cache settings (tweak TTLs as desired)
-_TRADES_TTL = 10     # seconds
-_POSITIONS_TTL = 5   # seconds
-_PERF_TTL = 15       # seconds
+# caching TTLs (seconds)
+_TRADES_TTL = float(os.getenv("TRADES_TTL", "10"))
+_POSITIONS_TTL = float(os.getenv("POSITIONS_TTL", "5"))
+_PERF_TTL = float(os.getenv("PERF_TTL", "15"))
 
-# caches (in-memory)
-_trades_cache = {"data": [], "ts": 0}
+# in-memory caches (thread-safe with locks)
+_trades_cache: Dict[str, Any] = {"data": [], "ts": 0.0}
 _trades_lock = threading.Lock()
 
-_positions_cache = {"data": [], "ts": 0}
+_positions_cache: Dict[str, Any] = {"data": [], "ts": 0.0}
 _positions_lock = threading.Lock()
 
-_performance_cache = {}  # key -> {"data": ..., "ts": ...}
+_performance_cache: Dict[str, Any] = {}
 _perf_lock = threading.Lock()
 
 INTERVAL_TO_DELTA = {
@@ -39,52 +54,84 @@ INTERVAL_TO_DELTA = {
     "week": timedelta(weeks=1),
 }
 
-def login():
-    global _logged_in
-    with _log_lock:
-        if not _logged_in:
-            r.login(RH_USERNAME, RH_PASSWORD)
-            _logged_in = True
 
-def _parse_iso_to_utc(dt_str):
+# ----------------------
+# Helpers
+# ----------------------
+def _now_ts() -> float:
+    return time.time()
+
+
+def _call_with_retries_sync(func: Callable, *args, retries: int = 3, backoff: float = 1.0, **kwargs):
+    """Run a sync function with retries/backoff. Useful for network calls."""
+    last_exc = None
+    for attempt in range(1, retries + 1):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            last_exc = e
+            if attempt == retries:
+                raise
+            time.sleep(backoff * attempt)
+    raise last_exc  # pragma: no cover
+
+
+def _parse_iso_to_utc(dt_str: Optional[str]) -> Optional[datetime]:
     if not dt_str:
         return None
     try:
-        return datetime.fromisoformat(dt_str.replace("Z", "+00:00")).astimezone(
-            timezone.utc
-        )
+        return datetime.fromisoformat(dt_str.replace("Z", "+00:00")).astimezone(timezone.utc)
     except Exception:
         try:
-            # fallback
-            return datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%SZ").replace(
-                tzinfo=timezone.utc
-            )
+            return datetime.strptime(dt_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
         except Exception:
             return None
 
-# -------------------------
-# internal: build raw trades (same logic you had, but kept local)
-# -------------------------
-def _fetch_all_trades_raw():
-    """
-    Returns a list of trade dicts similar to your previous shape:
-    {
-      "id": ...,
-      "symbol": ...,
-      "name": ...,
-      "side": "buy"/"sell",
-      "quantity": float,
-      "price": float,
-      "executed_at": ISO str in UTC,
-      "time_dt": datetime object (UTC) -- INTERNAL
-      "state": ...
-    }
-    """
-    login()
-    orders = r.orders.get_all_stock_orders() or []
-    trades = []
 
-    for o in orders:
+# ----------------------
+# Robinhood login & wrappers (sync)
+# ----------------------
+def _login_sync():
+    """Synchronous login call (wrapped by asyncio.to_thread in async functions)."""
+    global _logged_in
+    if r is None:
+        raise RuntimeError("robin_stocks not installed or import failed")
+    with _log_lock:
+        if not _logged_in:
+            # robot: call login with credential env vars
+            r.login(RH_USERNAME, RH_PASSWORD, expiresIn=86400)
+            _logged_in = True
+
+
+async def ensure_logged_in_async():
+    """Async wrapper to ensure logged in (idempotent)."""
+    # If already logged in we still want to avoid blocking loop: check flag then quickly return.
+    global _logged_in
+    if _logged_in:
+        return
+    await asyncio.to_thread(_login_sync)
+
+
+# ----------------------
+# Trades fetching (sync implementation, run in thread)
+# ----------------------
+def _fetch_all_trades_raw_sync() -> List[Dict[str, Any]]:
+    """Original synchronous logic to fetch and normalize trades from Robinhood."""
+    if r is None:
+        return []
+
+    # ensure login
+    _login_sync()
+
+    orders = []
+    try:
+        orders = _call_with_retries_sync(r.orders.get_all_stock_orders, retries=3, backoff=1)
+    except Exception:
+        orders = []  # fall back to empty
+
+    trades: List[Dict[str, Any]] = []
+
+    for o in orders or []:
         try:
             if o.get("state") != "filled":
                 continue
@@ -94,16 +141,12 @@ def _fetch_all_trades_raw():
             instrument_url = o.get("instrument")
             if instrument_url:
                 try:
-                    res = requests.get(instrument_url, timeout=5)
-                    if res.ok:
+                    # instrument lookups can fail - do small retry
+                    res = _call_with_retries_sync(requests.get, instrument_url, timeout=5, retries=2, backoff=0.5)
+                    if getattr(res, "ok", False):
                         inst = res.json()
                         symbol = inst.get("symbol") or symbol
-                        name = (
-                            inst.get("name")
-                            or inst.get("simple_name")
-                            or inst.get("title")
-                            or name
-                        )
+                        name = inst.get("name") or inst.get("simple_name") or inst.get("title") or name
                 except Exception:
                     pass
 
@@ -116,26 +159,20 @@ def _fetch_all_trades_raw():
                     try:
                         ex_qty = float(ex.get("quantity") or 0)
                         ex_price = float(ex.get("price") or o.get("average_price") or 0)
-                        ex_ts = _parse_iso_to_utc(
-                            ex.get("timestamp")
-                            or ex.get("created_at")
-                            or o.get("last_transaction_at")
-                        )
+                        ex_ts = _parse_iso_to_utc(ex.get("timestamp") or ex.get("created_at") or o.get("last_transaction_at"))
                         if not ex_ts:
                             continue
-                        trades.append(
-                            {
-                                "id": ex.get("id") or o.get("id"),
-                                "symbol": symbol,
-                                "name": name or symbol,
-                                "side": o.get("side"),
-                                "quantity": round(ex_qty, 6),
-                                "price": round(ex_price, 2),
-                                "executed_at": ex_ts.astimezone(timezone.utc).isoformat(),
-                                "time_dt": ex_ts.astimezone(timezone.utc),
-                                "state": o.get("state") or "filled",
-                            }
-                        )
+                        trades.append({
+                            "id": ex.get("id") or o.get("id"),
+                            "symbol": symbol,
+                            "name": name or symbol,
+                            "side": o.get("side"),
+                            "quantity": round(ex_qty, 6),
+                            "price": round(ex_price, 2),
+                            "executed_at": ex_ts.astimezone(timezone.utc).isoformat(),
+                            "time_dt": ex_ts.astimezone(timezone.utc),
+                            "state": o.get("state") or "filled",
+                        })
                     except Exception:
                         continue
             else:
@@ -144,52 +181,55 @@ def _fetch_all_trades_raw():
                 ts = _parse_iso_to_utc(o.get("last_transaction_at"))
                 if not ts:
                     continue
-                trades.append(
-                    {
-                        "id": o.get("id"),
-                        "symbol": symbol,
-                        "name": name or symbol,
-                        "side": o.get("side"),
-                        "quantity": round(qty, 6),
-                        "price": round(price, 2),
-                        "executed_at": ts.astimezone(timezone.utc).isoformat(),
-                        "time_dt": ts.astimezone(timezone.utc),
-                        "state": o.get("state") or "filled",
-                    }
-                )
+                trades.append({
+                    "id": o.get("id"),
+                    "symbol": symbol,
+                    "name": name or symbol,
+                    "side": o.get("side"),
+                    "quantity": round(qty, 6),
+                    "price": round(price, 2),
+                    "executed_at": ts.astimezone(timezone.utc).isoformat(),
+                    "time_dt": ts.astimezone(timezone.utc),
+                    "state": o.get("state") or "filled",
+                })
         except Exception:
             continue
 
-    # sort newest-first
     trades.sort(key=lambda x: x["time_dt"], reverse=True)
     return trades
 
-def _refresh_trades_cache(force=False):
-    now = time.time()
+
+def _refresh_trades_cache_sync(force: bool = False):
+    """Sync version of cache refresh. Quick check TTL then fetch if needed."""
+    now = _now_ts()
     with _trades_lock:
         if not force and (now - _trades_cache["ts"]) < _TRADES_TTL:
             return
         try:
-            trades = _fetch_all_trades_raw()
-            _trades_cache["data"] = trades  # newest-first
+            trades = _fetch_all_trades_raw_sync()
+            _trades_cache["data"] = trades
             _trades_cache["ts"] = now
         except Exception:
             # keep old cache if refresh fails
-            _trades_cache["ts"] = _trades_cache["ts"] or now
+            _trades_cache["ts"] = _trades_cache.get("ts") or now
 
-def get_stock_trades(page=1, limit=10, since=None, force_refresh=False):
+
+async def _refresh_trades_cache_async(force: bool = False):
+    await asyncio.to_thread(_refresh_trades_cache_sync, force)
+
+
+# ----------------------
+# Public async trade accessor
+# ----------------------
+async def get_stock_trades(page: int = 1, limit: int = 10, since: Optional[str] = None, force_refresh: bool = False) -> Dict[str, Any]:
     """
-    Returns paginated trades newest-first.
-    - page: 1-based page
-    - limit: per-page limit
-    - since: ISO timestamp string for new trades
-    - force_refresh: refreshes cache from Robinhood
+    Returns newset-first trades structure:
+    { "items": [...], "total": N }
     """
-    # refresh cache only if forced or TTL expired
-    _refresh_trades_cache(force=force_refresh)
+    await _refresh_trades_cache_async(force_refresh)
 
     with _trades_lock:
-        trades = _trades_cache["data"][:]  # newest-first
+        trades = list(_trades_cache["data"])  # newest-first
 
     if since:
         since_dt = _parse_iso_to_utc(since)
@@ -199,7 +239,6 @@ def get_stock_trades(page=1, limit=10, since=None, force_refresh=False):
         items = [{k: v for k, v in t.items() if k != "time_dt"} for t in filtered]
         return {"items": items, "total": len(items)}
 
-    # page slicing (newest-first)
     try:
         page = max(1, int(page))
         limit = max(1, int(limit))
@@ -208,80 +247,67 @@ def get_stock_trades(page=1, limit=10, since=None, force_refresh=False):
         limit = 10
 
     offset = (page - 1) * limit
-    sliced = trades[offset : offset + limit]
+    sliced = trades[offset: offset + limit]
     items = [{k: v for k, v in t.items() if k != "time_dt"} for t in sliced]
-
     return {"items": items, "total": len(trades)}
 
-# -------------------------
-# portfolio positions (cached)
-# -------------------------
-def _refresh_positions_cache(force=False):
-    now = time.time()
+
+# ----------------------
+# Positions (sync fetch then async wrapper)
+# ----------------------
+def _refresh_positions_cache_sync(force: bool = False):
+    now = _now_ts()
     with _positions_lock:
         if not force and (now - _positions_cache["ts"]) < _POSITIONS_TTL:
             return
         try:
-            login()
-            holdings = r.build_holdings() or {}
+            _login_sync()
+            holdings = _call_with_retries_sync(r.build_holdings, retries=3, backoff=1) if r else {}
             result = []
-            for ticker, pos in holdings.items():
-                result.append(
-                    {
-                        "ticker": ticker,
-                        "name": pos.get("name", ticker),
-                        "quantity": round(float(pos.get("quantity", 0) or 0), 4),
-                        "avg_buy_price": round(
-                            float(pos.get("average_buy_price", 0) or 0), 4
-                        ),
-                        "current_price": round(float(pos.get("price", 0) or 0), 4),
-                        "market_value": round(float(pos.get("equity", 0) or 0), 2),
-                        "unrealized_gain_loss": round(
-                            float(pos.get("equity_change", 0) or 0), 2
-                        ),
-                        "percent_change": round(
-                            float(pos.get("percent_change", 0) or 0), 2
-                        ),
-                    }
-                )
+            for ticker, pos in (holdings.items() if isinstance(holdings, dict) else []):
+                result.append({
+                    "ticker": ticker,
+                    "name": pos.get("name", ticker),
+                    "quantity": round(float(pos.get("quantity", 0) or 0), 4),
+                    "avg_buy_price": round(float(pos.get("average_buy_price", 0) or 0), 4),
+                    "current_price": round(float(pos.get("price", 0) or 0), 4),
+                    "market_value": round(float(pos.get("equity", 0) or 0), 2),
+                    "unrealized_gain_loss": round(float(pos.get("equity_change", 0) or 0), 2),
+                    "percent_change": round(float(pos.get("percent_change", 0) or 0), 2),
+                })
             _positions_cache["data"] = result
             _positions_cache["ts"] = now
         except Exception:
-            _positions_cache["ts"] = _positions_cache["ts"] or now
+            _positions_cache["ts"] = _positions_cache.get("ts") or now
 
-def get_portfolio_positions():
-    _refresh_positions_cache()
+
+async def _refresh_positions_cache_async(force: bool = False):
+    await asyncio.to_thread(_refresh_positions_cache_sync, force)
+
+
+async def get_portfolio_positions() -> List[Dict[str, Any]]:
+    await _refresh_positions_cache_async()
     with _positions_lock:
-        return _positions_cache["data"][:]
+        return list(_positions_cache["data"])
 
-# -------------------------
-# portfolio performance (cached by key)
-# -------------------------
-def _perf_cache_key(span, interval, bounds, starting_cash, max_points):
-    return f"{span}|{interval}|{bounds}|{starting_cash}|{max_points}"
 
-def get_portfolio_performance(span="month", interval="day", bounds="regular", starting_cash=None, max_points=None):
-    """
-    Wrapper around original performance logic but cached per-params to avoid
-    repeated historical calls to stock endpoints.
-    """
-    key = _perf_cache_key(span, interval, bounds, starting_cash, max_points)
-    now = time.time()
+# ----------------------
+# Performance calculation (sync heavy lifting, used in thread)
+# ----------------------
+def _compute_portfolio_performance_sync(span="month", interval="day", bounds="regular", starting_cash=None, max_points=None) -> List[Dict[str, Any]]:
+    # This function is the sync version of your original algorithm (keeps the same logic)
+    key = _perf_cache_key = f"{span}|{interval}|{bounds}|{starting_cash}|{max_points}"
+    now = _now_ts()
 
-    # return cached if valid
+    # cached return if valid
     with _perf_lock:
-        if key in _performance_cache:
-            entry = _performance_cache[key]
-            if (now - entry["ts"]) < _PERF_TTL:
-                return entry["data"]
+        entry = _performance_cache.get(key)
+        if entry and (now - entry["ts"]) < _PERF_TTL:
+            return entry["data"]
 
-    # Otherwise compute (using your original algorithm)
-    # We'll reuse your previous logic but call get_stock_trades() which is cached.
-    login()
-
-    trades_struct = get_stock_trades(page=1, limit=10000)  # returns dict with items (newest-first)
-    trades = trades_struct["items"][:]
-    # We need trades sorted oldest->newest for the simulation
+    # compute - re-use get_stock_trades (sync since called inside thread)
+    trades_struct = _fetch_all_trades_raw_sync()
+    trades = trades_struct[:]
     trades = sorted(trades, key=lambda x: _parse_iso_to_utc(x["executed_at"]))
 
     symbols = sorted({t["symbol"] for t in trades})
@@ -291,9 +317,7 @@ def get_portfolio_performance(span="month", interval="day", bounds="regular", st
 
     for sym in symbols:
         try:
-            hist = r.stocks.get_stock_historicals(
-                sym, interval=interval, span=span, bounds=bounds
-            ) or []
+            hist = _call_with_retries_sync(lambda: r.stocks.get_stock_historicals(sym, interval=interval, span=span, bounds=bounds), retries=2, backoff=0.8) or []
         except Exception:
             hist = []
         price_history[sym] = {}
@@ -314,9 +338,7 @@ def get_portfolio_performance(span="month", interval="day", bounds="regular", st
 
     all_timestamps = sorted(all_timestamps)
 
-    # optional max_points trimming (downsample)
     if max_points and isinstance(max_points, int) and len(all_timestamps) > max_points:
-        # pick approx evenly spaced timestamps
         step = max(1, len(all_timestamps) // max_points)
         all_timestamps = all_timestamps[::step]
 
@@ -328,10 +350,7 @@ def get_portfolio_performance(span="month", interval="day", bounds="regular", st
         elif t["side"] == "sell":
             invested_calc -= amt
 
-    if starting_cash is None:
-        starting_cash_val = invested_calc
-    else:
-        starting_cash_val = float(starting_cash)
+    starting_cash_val = invested_calc if starting_cash is None else float(starting_cash)
 
     positions = {}
     trades_idx = 0
@@ -356,11 +375,7 @@ def get_portfolio_performance(span="month", interval="day", bounds="regular", st
                 cash_running += amt
                 if positions[sym]["shares"] > 0:
                     qty_to_sell = min(float(t["quantity"]), positions[sym]["shares"])
-                    avg_cost = (
-                        positions[sym]["total_cost"] / positions[sym]["shares"]
-                        if positions[sym]["shares"] > 0
-                        else 0.0
-                    )
+                    avg_cost = (positions[sym]["total_cost"] / positions[sym]["shares"]) if positions[sym]["shares"] > 0 else 0.0
                     positions[sym]["shares"] -= qty_to_sell
                     positions[sym]["total_cost"] -= qty_to_sell * avg_cost
             trades_idx += 1
@@ -376,9 +391,8 @@ def get_portfolio_performance(span="month", interval="day", bounds="regular", st
                 price = hist[candidate_ts]
             else:
                 try:
-                    latest = r.stocks.get_latest_price(sym)
-                    if latest:
-                        price = float(latest[0]) if latest[0] is not None else None
+                    latest = _call_with_retries_sync(lambda: r.stocks.get_latest_price(sym), retries=2, backoff=0.8)
+                    price = float(latest[0]) if latest and latest[0] is not None else None
                 except Exception:
                     price = None
             if price is None:
@@ -390,21 +404,26 @@ def get_portfolio_performance(span="month", interval="day", bounds="regular", st
             first_market_value = market_value
 
         ts_eastern = ts.astimezone(eastern)
-        portfolio_history.append(
-            {
-                "timestamp": ts_eastern.isoformat(),
-                "market_value": round(market_value, 2),
-                "baseline": round(starting_cash_val, 2),
-            }
-        )
+        portfolio_history.append({
+            "timestamp": ts_eastern.isoformat(),
+            "market_value": round(market_value, 2),
+            "baseline": round(starting_cash_val, 2),
+        })
 
-    # cache result
     with _perf_lock:
-        _performance_cache[key] = {"data": portfolio_history, "ts": time.time()}
+        _performance_cache[_perf_cache_key] = {"data": portfolio_history, "ts": _now_ts()}
 
     return portfolio_history
 
-def get_all_trades_for_sync():
-    """Return all trades (not paginated) for database syncing."""
-    trades_struct = get_stock_trades(page=1, limit=10000, force_refresh=True)
-    return trades_struct.get("items", [])
+
+async def get_portfolio_performance(span="month", interval="day", bounds="regular", starting_cash=None, max_points=None):
+    # offload the heavy computation to thread
+    return await asyncio.to_thread(_compute_portfolio_performance_sync, span, interval, bounds, starting_cash, max_points)
+
+
+# ----------------------
+# Bulk helper for sync (used by scheduler)
+# ----------------------
+async def get_all_trades_for_sync() -> List[Dict[str, Any]]:
+    result = await get_stock_trades(page=1, limit=10000, force_refresh=True)
+    return result.get("items", [])
