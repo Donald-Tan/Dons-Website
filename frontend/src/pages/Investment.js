@@ -1,4 +1,4 @@
-// src/pages/Investments.jsx
+// src/pages/Investment.js
 import React from "react";
 import { PortfolioTable } from "../components/InvestmentsComponent/PortfolioTable";
 import { PortfolioGraph } from "../components/InvestmentsComponent/PortfolioGraph";
@@ -6,14 +6,13 @@ import { TradesTable } from "../components/InvestmentsComponent/TradesTable";
 import { InvestmentProfile } from "../components/InvestmentsComponent/InvestmentProfile";
 import { PortfolioDiversityChart } from "../components/InvestmentsComponent/PortfolioDiversityChart";
 
-export const Investments = () => {
+export const Investment = () => {
   return (
     <div className="dashboard-grid">
       {/* Graph takes 2 columns - on first row */}
       <div className="graph-box">
         <PortfolioGraph />
       </div>
-
       {/* Chart takes 1 column - on first row, right of profile */}
       <div className="chart-box">
         <PortfolioDiversityChart />
@@ -36,4 +35,4 @@ export const Investments = () => {
   );
 };
 
-export default Investments;
+export default Investment;

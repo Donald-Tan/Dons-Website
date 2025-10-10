@@ -15,7 +15,7 @@ import {
 import { useEffect } from "react";
 import { NavBar } from "./components/NavBar";
 import Home from "./pages/Home";
-import Investment from "./pages/Investment";
+import { Investment } from "./pages/Investment";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import { Featured } from "./pages/Featured";

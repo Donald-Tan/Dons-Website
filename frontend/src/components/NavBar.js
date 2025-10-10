@@ -36,7 +36,7 @@ export const NavBar = () => {
   ];
 
   const ODLinks = [
-    { path: "/Investments", label: "Investments" },
+    { path: "/Investment", label: "Investment" },
     { path: "/Travel", label: "Travel" },
     { path: "/Featured", label: "Featured" },
   ];

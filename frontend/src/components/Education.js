@@ -9,18 +9,14 @@ const Education = () => {
         <div className="education-intro">
           <h2 className="edu-main-title">Academic Background</h2>
           <p className="edu-tagline">
-            Donald's academic journey began at Seattle Central College in 2021,
-            immersing himself in the foundational courses needed to transfer to
-            the University of Washington. There, he focused intensely on
-            mastering core concepts while preparing for the next stage of his
-            education. At UW, he dove into higher-level courses, tackling
-            real-world projects that sharpened his technical skills and explored
-            modern technologies shaping today's industry. Driven by curiosity
-            and a passion for building impactful digital experiences, he honed
-            the tools and knowledge needed to innovate in practical settings.
-            From fundamental courses to advanced projects, his academic journey
-            reflects a commitment to growth, skill development, and bridging the
-            gap between theory and real-world application.
+            Donald began his academic journey at Seattle Central College in
+            2021, where he built a strong foundation in computer science before
+            transferring to the University of Washington. At UW, he expanded his
+            knowledge through advanced coursework and hands-on projects that
+            connected theory to real-world application. Guided by curiosity and
+            a passion for creating meaningful digital experiences, he developed
+            the technical and creative skills to turn ideas into impactful
+            solutions.
           </p>
         </div>
 

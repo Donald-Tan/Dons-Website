@@ -403,3 +403,8 @@ def get_portfolio_performance(span="month", interval="day", bounds="regular", st
         _performance_cache[key] = {"data": portfolio_history, "ts": time.time()}
 
     return portfolio_history
+
+def get_all_trades_for_sync():
+    """Return all trades (not paginated) for database syncing."""
+    trades_struct = get_stock_trades(page=1, limit=10000, force_refresh=True)
+    return trades_struct.get("items", [])
