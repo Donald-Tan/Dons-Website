@@ -5,3 +5,6 @@ uvicorn
 gunicorn
 httpx
 python-dotenv
+robin_stocks
+requests
+pytz
