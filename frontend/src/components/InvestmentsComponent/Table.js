@@ -105,7 +105,22 @@ export const Table = ({ title, fetchUrl, columns }) => {
       </div>
 
       {/* Table */}
-      <div className="table-wrapper">
+      <div className="table-wrapper" style={{ position: "relative" }}>
+        {loading && (
+          <div style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 10,
+            pointerEvents: "none"
+          }}>
+            <div className="loader" />
+          </div>
+        )}
         <table className="table">
           <thead>
             <tr>
@@ -119,18 +134,8 @@ export const Table = ({ title, fetchUrl, columns }) => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={columns.length} style={{ height: "400px", position: "relative", textAlign: "center" }}>
-                  <div style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center"
-                  }}>
-                    <div className="loader" />
-                  </div>
+                <td colSpan={columns.length} style={{ height: "400px", textAlign: "center" }}>
+                  {/* Loader is rendered above in the table-wrapper */}
                 </td>
               </tr>
             ) : error || !data.length ? (
