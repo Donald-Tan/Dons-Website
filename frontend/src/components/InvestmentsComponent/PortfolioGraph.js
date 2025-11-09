@@ -85,8 +85,9 @@ export const PortfolioGraph = () => {
   const abortControllerRef = useRef(null);
   const debounceRef = useRef(null);
 
-  // Reduced for faster initial load - 200 points is plenty for a smooth graph
-  const MAX_POINTS = 200;
+  // Reduced for faster initial load - 100 points is plenty for a smooth graph
+  // More points = slower load, but 100 still looks great
+  const MAX_POINTS = 100;
 
   // Cache key for localStorage
   const getCacheKey = useCallback((tf) => `portfolio_history_${tf.span}_${tf.interval}`, []);
@@ -168,8 +169,8 @@ export const PortfolioGraph = () => {
     if (cached) {
       try {
         const { data: cachedData, timestamp } = JSON.parse(cached);
-        // Use cached data if less than 5 minutes old
-        if (Date.now() - timestamp < 300000) {
+        // Use cached data if less than 10 minutes old
+        if (Date.now() - timestamp < 600000) {
           processHistoryData(cachedData, false);
         }
       } catch (e) {
@@ -177,9 +178,9 @@ export const PortfolioGraph = () => {
       }
     }
 
-    // Reduced debounce from 150ms to 50ms for faster response
+    // Reduced debounce from 150ms to 10ms for near-instant response
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => fetchHistory(timeframe, !cached), 50);
+    debounceRef.current = setTimeout(() => fetchHistory(timeframe, !cached), 10);
     const intervalId = setInterval(() => fetchHistory(timeframe, false), 30000);
     return () => {
       clearTimeout(debounceRef.current);

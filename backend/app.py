@@ -295,8 +295,8 @@ async def startup_event():
             # This happens in background so first user request is instant
             asyncio.create_task(_refresh_positions_cache_async(force=True))
             asyncio.create_task(_refresh_trades_cache_async(force=True))
-            # Pre-warm performance cache for the default 1D view
-            asyncio.create_task(get_portfolio_performance(span="day", interval="5minute", bounds="trading", max_points=400))
+            # Pre-warm performance cache for the default 1D view (100 points for faster response)
+            asyncio.create_task(get_portfolio_performance(span="day", interval="5minute", bounds="trading", max_points=100))
         except Exception:
             logger.exception("Cache pre-warm error (continuing).")
 
