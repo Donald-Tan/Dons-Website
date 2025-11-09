@@ -114,22 +114,33 @@ def _parse_iso_to_utc(dt_str: Optional[str]) -> Optional[datetime]:
 def _save_session():
     """Save the current session token to file for persistence across restarts."""
     try:
-        # Get the current session from robin_stocks (stored in module globals)
-        if not hasattr(r, 'authentication') or not hasattr(r.authentication, 'get_all_tokens'):
-            print("Warning: Cannot save session - robin_stocks API not available")
+        # robin_stocks stores the session data in module-level globals
+        # We need to extract the OAuth token and device token
+        if not hasattr(r, 'globals'):
+            print("Warning: Cannot save session - robin_stocks.globals not available")
             return
 
-        tokens = r.authentication.get_all_tokens()
-        if tokens:
-            # Save to file
-            with open(SESSION_FILE, 'wb') as f:
-                pickle.dump(tokens, f)
-            print(f"✓ Session saved to {SESSION_FILE}")
+        # Extract the session data from robin_stocks globals
+        session_data = {
+            'access_token': getattr(r.globals, 'LOGGED_IN_TOKEN', None),
+            'refresh_token': getattr(r.globals, 'REFRESH_TOKEN', None),
+            'device_token': getattr(r.globals, 'DEVICE_TOKEN', None),
+        }
 
-            # Also print base64-encoded version for environment variable storage
-            tokens_b64 = base64.b64encode(pickle.dumps(tokens)).decode('utf-8')
-            print(f"\n📋 To persist this session on Render.com, add this environment variable:")
-            print(f"RH_SESSION_TOKEN={tokens_b64[:50]}...\n")
+        # Only save if we have a valid access token
+        if not session_data['access_token']:
+            print("Warning: No access token available to save")
+            return
+
+        # Save to file
+        with open(SESSION_FILE, 'wb') as f:
+            pickle.dump(session_data, f)
+        print(f"✓ Session saved to {SESSION_FILE}")
+
+        # Also print base64-encoded version for environment variable storage
+        tokens_b64 = base64.b64encode(pickle.dumps(session_data)).decode('utf-8')
+        print(f"\n📋 To persist this session on Render.com, add this environment variable:")
+        print(f"RH_SESSION_TOKEN={tokens_b64}\n")
     except Exception as e:
         print(f"Failed to save session: {e}")
 
@@ -137,29 +148,31 @@ def _save_session():
 def _load_session():
     """Load session token from environment variable or file."""
     try:
-        tokens = None
+        session_data = None
 
         # First, try to load from environment variable (for Render.com)
         env_token = os.getenv('RH_SESSION_TOKEN')
         if env_token:
             try:
-                tokens = pickle.loads(base64.b64decode(env_token))
+                session_data = pickle.loads(base64.b64decode(env_token))
                 print("✓ Session loaded from environment variable")
             except Exception as e:
                 print(f"Failed to decode env session: {e}")
 
         # Fallback to file (for local development)
-        if not tokens and SESSION_FILE.exists():
+        if not session_data and SESSION_FILE.exists():
             with open(SESSION_FILE, 'rb') as f:
-                tokens = pickle.load(f)
+                session_data = pickle.load(f)
             print(f"✓ Session loaded from {SESSION_FILE}")
 
-        if not tokens:
+        if not session_data or not session_data.get('access_token'):
             return False
 
-        # Set the loaded tokens in robin_stocks
-        if hasattr(r, 'authentication') and hasattr(r.authentication, 'set_login_state'):
-            r.authentication.set_login_state(tokens)
+        # Set the loaded tokens in robin_stocks globals
+        if hasattr(r, 'globals'):
+            r.globals.LOGGED_IN_TOKEN = session_data.get('access_token')
+            r.globals.REFRESH_TOKEN = session_data.get('refresh_token')
+            r.globals.DEVICE_TOKEN = session_data.get('device_token')
             return True
         return False
     except Exception as e:
