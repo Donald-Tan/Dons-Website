@@ -9,6 +9,9 @@ import time
 import threading
 import requests
 import asyncio
+import pickle
+import base64
+from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any, Optional, Callable
 from dotenv import load_dotenv
@@ -26,6 +29,9 @@ import pytz
 # env
 RH_USERNAME = os.getenv("RH_USERNAME")
 RH_PASSWORD = os.getenv("RH_PASSWORD")
+
+# Session persistence file - store in backend directory for persistence across restarts
+SESSION_FILE = Path(__file__).parent / ".robinhood_session.pickle"
 
 # internal login state
 _logged_in = False
@@ -105,6 +111,62 @@ def _parse_iso_to_utc(dt_str: Optional[str]) -> Optional[datetime]:
 # ----------------------
 # Robinhood login & wrappers (sync)
 # ----------------------
+def _save_session():
+    """Save the current session token to file for persistence across restarts."""
+    try:
+        # Get the current session from robin_stocks (stored in module globals)
+        if not hasattr(r, 'authentication') or not hasattr(r.authentication, 'get_all_tokens'):
+            print("Warning: Cannot save session - robin_stocks API not available")
+            return
+
+        tokens = r.authentication.get_all_tokens()
+        if tokens:
+            # Save to file
+            with open(SESSION_FILE, 'wb') as f:
+                pickle.dump(tokens, f)
+            print(f"✓ Session saved to {SESSION_FILE}")
+
+            # Also print base64-encoded version for environment variable storage
+            tokens_b64 = base64.b64encode(pickle.dumps(tokens)).decode('utf-8')
+            print(f"\n📋 To persist this session on Render.com, add this environment variable:")
+            print(f"RH_SESSION_TOKEN={tokens_b64[:50]}...\n")
+    except Exception as e:
+        print(f"Failed to save session: {e}")
+
+
+def _load_session():
+    """Load session token from environment variable or file."""
+    try:
+        tokens = None
+
+        # First, try to load from environment variable (for Render.com)
+        env_token = os.getenv('RH_SESSION_TOKEN')
+        if env_token:
+            try:
+                tokens = pickle.loads(base64.b64decode(env_token))
+                print("✓ Session loaded from environment variable")
+            except Exception as e:
+                print(f"Failed to decode env session: {e}")
+
+        # Fallback to file (for local development)
+        if not tokens and SESSION_FILE.exists():
+            with open(SESSION_FILE, 'rb') as f:
+                tokens = pickle.load(f)
+            print(f"✓ Session loaded from {SESSION_FILE}")
+
+        if not tokens:
+            return False
+
+        # Set the loaded tokens in robin_stocks
+        if hasattr(r, 'authentication') and hasattr(r.authentication, 'set_login_state'):
+            r.authentication.set_login_state(tokens)
+            return True
+        return False
+    except Exception as e:
+        print(f"Failed to load session: {e}")
+        return False
+
+
 def _login_sync():
     """Synchronous login call (wrapped by asyncio.to_thread in async functions)."""
     global _logged_in
@@ -112,6 +174,17 @@ def _login_sync():
         raise RuntimeError("robin_stocks not installed or import failed")
     with _log_lock:
         if not _logged_in:
+            # Try to load session from our custom file first
+            if _load_session():
+                try:
+                    # Verify the session is still valid
+                    profile = r.profiles.load_account_profile()
+                    if profile and isinstance(profile, dict):
+                        _logged_in = True
+                        print("✓ Using persisted session - no login required!")
+                        return
+                except Exception:
+                    print("⚠ Persisted session expired, logging in fresh")
             # First, try to verify if we already have a valid session
             # by attempting a simple API call
             try:
@@ -135,6 +208,9 @@ def _login_sync():
                 store_session=True  # persist session to avoid re-authentication
             )
             _logged_in = True
+
+            # Save session to our custom file for persistence across server restarts
+            _save_session()
 
 
 async def ensure_logged_in_async():
