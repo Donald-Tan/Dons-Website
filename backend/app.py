@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.events import EVENT_JOB_ERROR, JobExecutionEvent
 from dotenv import load_dotenv
@@ -67,6 +68,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add GZip compression for faster data transfer (especially for large history data)
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 # -------------------------
 # Supabase async client (created at startup)
@@ -291,6 +295,8 @@ async def startup_event():
             # This happens in background so first user request is instant
             asyncio.create_task(_refresh_positions_cache_async(force=True))
             asyncio.create_task(_refresh_trades_cache_async(force=True))
+            # Pre-warm performance cache for the default 1D view
+            asyncio.create_task(get_portfolio_performance(span="day", interval="5minute", bounds="trading", max_points=400))
         except Exception:
             logger.exception("Cache pre-warm error (continuing).")
 

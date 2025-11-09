@@ -85,14 +85,63 @@ export const PortfolioGraph = () => {
   const abortControllerRef = useRef(null);
   const debounceRef = useRef(null);
 
-  const MAX_POINTS = 400;
+  // Reduced for faster initial load - 200 points is plenty for a smooth graph
+  const MAX_POINTS = 200;
 
-  const fetchHistory = async (tf) => {
+  // Cache key for localStorage
+  const getCacheKey = (tf) => `portfolio_history_${tf.span}_${tf.interval}`;
+
+  // Extract data processing logic for reuse
+  const processHistoryData = (data, fromFetch = true) => {
+    if (!Array.isArray(data) || data.length === 0) {
+      setHistory([]);
+      setYDomain([0, "auto"]);
+      setPortfolioValue(0);
+      setChange(0);
+      return;
+    }
+
+    const formatted = data
+      .map((p) => ({
+        timestamp: new Date(p.timestamp).getTime(),
+        market_value: Number(p.market_value),
+      }))
+      .sort((a, b) => a.timestamp - b.timestamp);
+
+    setHistory(formatted);
+
+    const latest = formatted[formatted.length - 1].market_value;
+    const prev = formatted[0].market_value;
+    setPortfolioValue(latest);
+    setChange(Number((latest - prev).toFixed(2)));
+
+    const min = Math.min(...formatted.map((d) => d.market_value));
+    const max = Math.max(...formatted.map((d) => d.market_value));
+    setYDomain(getNiceDomain(min, max));
+  };
+
+  const fetchHistory = async (tf, showLoadingSpinner = true) => {
     if (abortControllerRef.current) abortControllerRef.current.abort?.();
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    setLoading(true);
+    // Try to load from localStorage cache first for instant display
+    const cacheKey = getCacheKey(tf);
+    const cached = localStorage.getItem(cacheKey);
+    if (cached && !showLoadingSpinner) {
+      try {
+        const { data: cachedData, timestamp } = JSON.parse(cached);
+        // Use cached data if less than 2 minutes old
+        if (Date.now() - timestamp < 120000) {
+          // Process cached data without showing loading
+          processHistoryData(cachedData, false);
+        }
+      } catch (e) {
+        // Invalid cache, ignore
+      }
+    }
+
+    if (showLoadingSpinner) setLoading(true);
     try {
       const res = await fetch(
         `${API_ENDPOINTS.portfolioHistory}?span=${tf.span}&interval=${tf.interval}&max_points=${MAX_POINTS}`,
@@ -100,31 +149,10 @@ export const PortfolioGraph = () => {
       );
       const data = await res.json();
 
-      if (!Array.isArray(data) || data.length === 0) {
-        setHistory([]);
-        setYDomain([0, "auto"]);
-        setPortfolioValue(0);
-        setChange(0);
-        return;
-      }
+      // Save to cache
+      localStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
 
-      const formatted = data
-        .map((p) => ({
-          timestamp: new Date(p.timestamp).getTime(),
-          market_value: Number(p.market_value),
-        }))
-        .sort((a, b) => a.timestamp - b.timestamp);
-
-      setHistory(formatted);
-
-      const latest = formatted[formatted.length - 1].market_value;
-      const prev = formatted[0].market_value;
-      setPortfolioValue(latest);
-      setChange(Number((latest - prev).toFixed(2)));
-
-      const min = Math.min(...formatted.map((d) => d.market_value));
-      const max = Math.max(...formatted.map((d) => d.market_value));
-      setYDomain(getNiceDomain(min, max));
+      processHistoryData(data, true);
     } catch (err) {
       if (err.name !== "AbortError")
         console.error("History fetch failed:", err);
@@ -134,9 +162,25 @@ export const PortfolioGraph = () => {
   };
 
   useEffect(() => {
+    // Try to load from cache immediately for instant display
+    const cacheKey = getCacheKey(timeframe);
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        const { data: cachedData, timestamp } = JSON.parse(cached);
+        // Use cached data if less than 5 minutes old
+        if (Date.now() - timestamp < 300000) {
+          processHistoryData(cachedData, false);
+        }
+      } catch (e) {
+        // Invalid cache, ignore
+      }
+    }
+
+    // Reduced debounce from 150ms to 50ms for faster response
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => fetchHistory(timeframe), 150);
-    const intervalId = setInterval(() => fetchHistory(timeframe), 30000);
+    debounceRef.current = setTimeout(() => fetchHistory(timeframe, !cached), 50);
+    const intervalId = setInterval(() => fetchHistory(timeframe, false), 30000);
     return () => {
       clearTimeout(debounceRef.current);
       clearInterval(intervalId);
