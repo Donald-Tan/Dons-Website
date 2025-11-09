@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import InvestmentPP from "../../assets/InvestmentProfile.png";
 
-export const InvestmentProfile = () => {
+export const InvestmentProfile = ({ isFlipped, isMobile }) => {
   const cardRef = useRef(null);
   const [layout, setLayout] = useState("normal"); // normal, compact, mini
 
@@ -9,6 +9,7 @@ export const InvestmentProfile = () => {
     const updateLayout = () => {
       if (cardRef.current) {
         const width = cardRef.current.getBoundingClientRect().width;
+
         if (width < 200) {
           setLayout("mini");
         } else if (width < 280) {
@@ -26,7 +27,9 @@ export const InvestmentProfile = () => {
       resizeObserver.observe(cardRef.current);
     }
 
-    return () => resizeObserver.disconnect();
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
 
   const getStyles = () => {
@@ -133,40 +136,90 @@ export const InvestmentProfile = () => {
   const styles = getStyles();
 
   return (
-    <div ref={cardRef} className="investment-profile-card">
-      <div className="investment-profile-row" style={styles.row}>
-        <img
-          src={InvestmentPP}
-          alt="Profile"
-          className="profile-pic"
-          style={styles.pic}
-        />
+    <>
+      {isMobile ? (
+        <>
+          {/* Front of card - Profile info */}
+          <div ref={cardRef} className="flip-card-front">
+            <div className="investment-profile-row" style={styles.row}>
+              <img
+                src={InvestmentPP}
+                alt="Profile"
+                className="profile-pic"
+                style={styles.pic}
+              />
 
-        <div className="profile-name-age" style={styles.nameAge}>
-          <span className="profile-name" style={styles.name}>
-            Donald Tan
-          </span>
-          <span className="profile-age" style={styles.age}>
-            Age: 22
-          </span>
-          <div className="profile-stats" style={styles.stats}>
-            <span>📈 7 Years</span>
-            <span>💻 Tech</span>
-            <span>🌍 Emerging Mkts</span>
+              <div className="profile-name-age" style={styles.nameAge}>
+                <span className="profile-name" style={styles.name}>
+                  Donald Tan
+                </span>
+                <span className="profile-age" style={styles.age}>
+                  Age: 22
+                </span>
+                <div className="profile-stats" style={styles.stats}>
+                  <span>📈 7 Years</span>
+                  <span>💻 Tech</span>
+                  <span>🌍 Emerging Mkts</span>
+                </div>
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.75rem', opacity: 0.7 }}>
+              Tap to read more
+            </div>
+          </div>
+
+          {/* Back of card - Story */}
+          <div className="flip-card-back">
+            <div className="profile-story" style={{ ...styles.story, overflow: 'auto', flex: '1', display: 'flex', alignItems: 'flex-start' }}>
+              <p style={{ margin: 0 }}>
+                Investing since the age of 15, I have developed the mindset and
+                knowledge required to become a thoughtful investor. Today, my approach
+                blends those principles with analytical research inspired by investors
+                and commentators such as Luke Lango, Louis Navellier, and Eric Fry
+                (InvestorPlace). I focus on technology, emerging markets, and growth
+                opportunities that align with long-term innovation.
+              </p>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div ref={cardRef} className="investment-profile-card">
+          {/* Desktop layout - show everything */}
+          <div className="investment-profile-row" style={styles.row}>
+            <img
+              src={InvestmentPP}
+              alt="Profile"
+              className="profile-pic"
+              style={styles.pic}
+            />
+
+            <div className="profile-name-age" style={styles.nameAge}>
+              <span className="profile-name" style={styles.name}>
+                Donald Tan
+              </span>
+              <span className="profile-age" style={styles.age}>
+                Age: 22
+              </span>
+              <div className="profile-stats" style={styles.stats}>
+                <span>📈 7 Years</span>
+                <span>💻 Tech</span>
+                <span>🌍 Emerging Mkts</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="profile-story" style={styles.story}>
+            <p>
+              Investing since the age of 15, I have developed the mindset and
+              knowledge required to become a thoughtful investor. Today, my approach
+              blends those principles with analytical research inspired by investors
+              and commentators such as Luke Lango, Louis Navellier, and Eric Fry
+              (InvestorPlace). I focus on technology, emerging markets, and growth
+              opportunities that align with long-term innovation.
+            </p>
           </div>
         </div>
-      </div>
-
-      <div className="profile-story" style={styles.story}>
-        <p>
-          Investing since the age of 15, I have developed the mindset and
-          knowledge required to become a thoughtful investor. Today, my approach
-          blends those principles with analytical research inspired by investors
-          and commentators such as Luke Lango, Louis Navellier, and Eric Fry
-          (InvestorPlace). I focus on technology, emerging markets, and growth
-          opportunities that align with long-term innovation.
-        </p>
-      </div>
-    </div>
+      )}
+    </>
   );
 };

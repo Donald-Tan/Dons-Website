@@ -31,10 +31,11 @@ RH_PASSWORD = os.getenv("RH_PASSWORD")
 _logged_in = False
 _log_lock = threading.Lock()
 
-# caching TTLs (seconds)
-_TRADES_TTL = float(os.getenv("TRADES_TTL", "10"))
-_POSITIONS_TTL = float(os.getenv("POSITIONS_TTL", "5"))
-_PERF_TTL = float(os.getenv("PERF_TTL", "15"))
+# caching TTLs (seconds) - Longer cache = faster response
+# Your portfolio data doesn't change every second, so we cache longer
+_TRADES_TTL = float(os.getenv("TRADES_TTL", "300"))  # 5 minutes
+_POSITIONS_TTL = float(os.getenv("POSITIONS_TTL", "60"))  # 1 minute
+_PERF_TTL = float(os.getenv("PERF_TTL", "300"))  # 5 minutes
 
 # in-memory caches (thread-safe with locks)
 _trades_cache: Dict[str, Any] = {"data": [], "ts": 0.0}
@@ -70,6 +71,19 @@ def _call_with_retries_sync(func: Callable, *args, retries: int = 3, backoff: fl
             return func(*args, **kwargs)
         except Exception as e:
             last_exc = e
+            # Check if it's an authentication error
+            error_msg = str(e).lower()
+            if "unauthorized" in error_msg or "401" in error_msg or "authentication" in error_msg:
+                # Session expired - force re-login
+                global _logged_in
+                _logged_in = False
+                try:
+                    _login_sync()
+                    # Retry the function call after re-login
+                    return func(*args, **kwargs)
+                except Exception:
+                    pass  # If re-login fails, continue with normal retry logic
+
             if attempt == retries:
                 raise
             time.sleep(backoff * attempt)
@@ -98,8 +112,28 @@ def _login_sync():
         raise RuntimeError("robin_stocks not installed or import failed")
     with _log_lock:
         if not _logged_in:
-            # robot: call login with credential env vars
-            r.login(RH_USERNAME, RH_PASSWORD, expiresIn=86400)
+            # First, try to verify if we already have a valid session
+            # by attempting a simple API call
+            try:
+                # Try to get account profile - if this works, we're already logged in
+                profile = r.profiles.load_account_profile()
+                if profile and isinstance(profile, dict):
+                    # Session is still valid!
+                    _logged_in = True
+                    return
+            except Exception:
+                # Session invalid or doesn't exist, need to login
+                pass
+
+            # Try to use existing session first - robin_stocks stores session in .pickle file
+            # This will automatically reuse the session if it's still valid
+            # Only prompts for 2FA/push notification if session expired or invalid
+            r.login(
+                RH_USERNAME,
+                RH_PASSWORD,
+                expiresIn=2592000,  # 30 days (maximum allowed by Robinhood)
+                store_session=True  # persist session to avoid re-authentication
+            )
             _logged_in = True
 
 
@@ -110,6 +144,33 @@ async def ensure_logged_in_async():
     if _logged_in:
         return
     await asyncio.to_thread(_login_sync)
+
+
+def _refresh_session_sync():
+    """Refresh the session to keep it alive. Called periodically."""
+    global _logged_in
+    if not _logged_in:
+        return
+
+    try:
+        # Make a lightweight API call to verify session is still valid
+        profile = r.profiles.load_account_profile()
+        if not profile or not isinstance(profile, dict):
+            # Session invalid, force re-login
+            _logged_in = False
+            _login_sync()
+    except Exception:
+        # Session likely expired, force re-login
+        _logged_in = False
+        try:
+            _login_sync()
+        except Exception:
+            pass  # Will retry on next call
+
+
+async def refresh_session_async():
+    """Async wrapper for session refresh. Call this periodically to maintain session."""
+    await asyncio.to_thread(_refresh_session_sync)
 
 
 # ----------------------

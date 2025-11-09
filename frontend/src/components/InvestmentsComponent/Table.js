@@ -119,8 +119,18 @@ export const Table = ({ title, fetchUrl, columns }) => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={columns.length} className="text-center">
-                  Loading...
+                <td colSpan={columns.length} style={{ height: "400px", position: "relative", textAlign: "center" }}>
+                  <div style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                  }}>
+                    <div className="loader" />
+                  </div>
                 </td>
               </tr>
             ) : error || !data.length ? (

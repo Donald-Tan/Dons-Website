@@ -1,5 +1,6 @@
 import React from "react";
 import { Table } from "./Table";
+import API_ENDPOINTS from "../../config/api";
 
 export const PortfolioTable = () => {
   const columns = [
@@ -16,7 +17,7 @@ export const PortfolioTable = () => {
   return (
     <Table
       title="Portfolio"
-      fetchUrl="https://dons-website.onrender.com/api/portfolio"
+      fetchUrl={API_ENDPOINTS.portfolio}
       columns={columns}
       rowsPerPage={10}
     />

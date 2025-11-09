@@ -26,6 +26,9 @@ from robin_client import (
     get_portfolio_positions,
     get_portfolio_performance,
     get_all_trades_for_sync,
+    refresh_session_async,
+    _refresh_positions_cache_async,
+    _refresh_trades_cache_async,
 )
 
 load_dotenv()
@@ -170,27 +173,20 @@ async def health():
 @app.get("/api/portfolio")
 async def api_portfolio():
     """
-    Return portfolio positions.
-    Priority:
-      1) Try Supabase cached positions (fast)
-      2) Fallback to live (robin_client) - this still runs in background thread and is safe
+    Return portfolio positions from cached robin_client (fast with longer cache).
+    The cache is refreshed every 60 seconds, so this endpoint is very fast.
     """
-    # try Supabase
-    if supabase is not None:
-        try:
-            rows = await _supabase_fetch_all_trades()  # trades table is the canonical source of truth here
-            # Build quick positions summary from trades (optional) OR return positions table if you created it
-            # For now, if trades exist return latest positions snapshot via robin_client (fast)
-            if rows:
-                # optional: if you keep a 'positions' table in supabase you can return that directly here for true instant response
-                pass
-        except Exception:
-            logger.exception("Supabase read failed; falling back to robin_client")
-
-    # fallback: compute positions from robin_client (which uses background threads)
+    from fastapi.responses import JSONResponse
     try:
         positions = await get_portfolio_positions()
-        return positions
+        # Add HTTP caching headers - browser can cache for 30 seconds
+        return JSONResponse(
+            content=positions,
+            headers={
+                "Cache-Control": "public, max-age=30",
+                "ETag": f"{hash(str(positions))}"
+            }
+        )
     except Exception as e:
         logger.exception("Error fetching positions")
         raise HTTPException(status_code=500, detail=str(e))
@@ -198,10 +194,18 @@ async def api_portfolio():
 
 @app.get("/api/portfolio/history")
 async def api_portfolio_history(span: str = "day", interval: str = "5minute", max_points: Optional[int] = None, starting_cash: Optional[float] = None):
+    from fastapi.responses import JSONResponse
     try:
         bounds = "trading" if span == "day" else "regular"
         data = await get_portfolio_performance(span=span, interval=interval, bounds=bounds, starting_cash=starting_cash, max_points=max_points)
-        return data
+        # Cache history data for 2 minutes (it's expensive to compute)
+        return JSONResponse(
+            content=data,
+            headers={
+                "Cache-Control": "public, max-age=120",
+                "ETag": f"{hash(str(data))}"
+            }
+        )
     except Exception as e:
         logger.exception("Error computing portfolio history")
         raise HTTPException(status_code=500, detail=str(e))
@@ -209,20 +213,35 @@ async def api_portfolio_history(span: str = "day", interval: str = "5minute", ma
 
 @app.get("/api/portfolio/trades")
 async def api_trades():
-    if supabase is None:
-        # fallback to direct robin_client sync
-        try:
-            trades = await get_all_trades_for_sync()
-            return trades
-        except Exception as e:
-            logger.exception("Error reading trades fallback")
-            raise HTTPException(status_code=500, detail=str(e))
+    from fastapi.responses import JSONResponse
 
+    # Try Supabase first if available
+    if supabase is not None:
+        try:
+            trades = await _supabase_fetch_all_trades()
+            return JSONResponse(
+                content=trades,
+                headers={
+                    "Cache-Control": "public, max-age=60",
+                    "ETag": f"{hash(str(trades))}"
+                }
+            )
+        except Exception as e:
+            logger.warning("Supabase fetch failed, falling back to robin_client: %s", e)
+            # Fall through to robin_client fallback
+
+    # Fallback to robin_client (either supabase is None or supabase fetch failed)
     try:
-        trades = await _supabase_fetch_all_trades()
-        return trades
+        trades = await get_all_trades_for_sync()
+        return JSONResponse(
+            content=trades,
+            headers={
+                "Cache-Control": "public, max-age=60",
+                "ETag": f"{hash(str(trades))}"
+            }
+        )
     except Exception as e:
-        logger.exception("Error fetching trades from Supabase")
+        logger.exception("Error reading trades fallback")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -258,10 +277,23 @@ async def startup_event():
     if RUN_SCHEDULER:
         if not scheduler.running:
             logger.info("Starting background scheduler (interval=%d min).", SYNC_INTERVAL_MINUTES)
+            # Add trade sync job
             scheduler.add_job(sync_trades, "interval", minutes=SYNC_INTERVAL_MINUTES, id="sync_trades", replace_existing=True)
+            # Add session refresh job (runs daily to keep session alive)
+            scheduler.add_job(refresh_session_async, "interval", hours=12, id="refresh_session", replace_existing=True)
             scheduler.start()
         else:
             logger.info("Scheduler already running.")
+        # Pre-warm caches for faster first page load
+        logger.info("Pre-warming caches...")
+        try:
+            # Pre-fetch positions and trades to warm up cache
+            # This happens in background so first user request is instant
+            asyncio.create_task(_refresh_positions_cache_async(force=True))
+            asyncio.create_task(_refresh_trades_cache_async(force=True))
+        except Exception:
+            logger.exception("Cache pre-warm error (continuing).")
+
         # run initial sync (don't block startup for too long)
         try:
             # do first sync but do not block startup for extended time

@@ -1,5 +1,5 @@
 // src/pages/Investment.js
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { PortfolioTable } from "../components/InvestmentsComponent/PortfolioTable";
 import { PortfolioGraph } from "../components/InvestmentsComponent/PortfolioGraph";
 import { TradesTable } from "../components/InvestmentsComponent/TradesTable";
@@ -7,6 +7,26 @@ import { InvestmentProfile } from "../components/InvestmentsComponent/Investment
 import { PortfolioDiversityChart } from "../components/InvestmentsComponent/PortfolioDiversityChart";
 
 export const Investment = () => {
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleFlip = () => {
+    if (isMobile) {
+      setIsFlipped(!isFlipped);
+    }
+  };
+
   return (
     <div className="dashboard-grid">
       {/* Graph takes 2 columns - on first row */}
@@ -18,8 +38,11 @@ export const Investment = () => {
         <PortfolioDiversityChart />
       </div>
       {/* Profile takes 1 column - on first row, right of graph */}
-      <div className="profile-box">
-        <InvestmentProfile />
+      <div
+        className={`profile-box ${isMobile ? 'flip-container' : ''} ${isFlipped ? 'flipped' : ''}`}
+        onClick={handleFlip}
+      >
+        <InvestmentProfile isFlipped={isFlipped} isMobile={isMobile} />
       </div>
 
       {/* Portfolio table takes 2 columns (half width) */}

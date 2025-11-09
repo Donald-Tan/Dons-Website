@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import PropTypes from "prop-types";
+import API_ENDPOINTS from "../../config/api";
 
 const DEFAULT_GRAY = "hsl(0, 0%, 75%)";
 
@@ -26,7 +27,7 @@ const mapPctToGreen = (pct, minPct, maxPct) => {
 };
 
 export const PortfolioDiversityChart = ({
-  fetchUrl = "https://dons-website.onrender.com/api/portfolio",
+  fetchUrl = API_ENDPOINTS.portfolio,
   pollInterval = 60000,
   othersThreshold = 0.02,
 }) => {
@@ -224,7 +225,9 @@ export const PortfolioDiversityChart = ({
         role="region"
         aria-label="Portfolio diversity"
       >
-        <div className="chart-empty">Loading...</div>
+        <div className="chart-empty">
+          <div className="loader" />
+        </div>
       </div>
     );
   }

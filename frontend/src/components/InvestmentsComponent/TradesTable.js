@@ -1,6 +1,7 @@
 // TradesTable.js (only small edits)
 import React from "react";
 import { Table } from "./Table";
+import API_ENDPOINTS from "../../config/api";
 
 export const TradesTable = () => {
   const columns = [
@@ -32,7 +33,7 @@ export const TradesTable = () => {
   return (
     <Table
       title="Trades"
-      fetchUrl="https://dons-website.onrender.com/api/portfolio/trades"
+      fetchUrl={API_ENDPOINTS.portfolioTrades}
       columns={columns}
       rowsPerPage={10}
     />

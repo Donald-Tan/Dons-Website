@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import API_ENDPOINTS from "../../config/api";
 
 const TIMEFRAMES = [
   { label: "1D", span: "day", interval: "5minute" },
@@ -94,7 +95,7 @@ export const PortfolioGraph = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `https://dons-website.onrender.com/api/portfolio/history?span=${tf.span}&interval=${tf.interval}&max_points=${MAX_POINTS}`,
+        `${API_ENDPOINTS.portfolioHistory}?span=${tf.span}&interval=${tf.interval}&max_points=${MAX_POINTS}`,
         { signal: controller.signal }
       );
       const data = await res.json();
