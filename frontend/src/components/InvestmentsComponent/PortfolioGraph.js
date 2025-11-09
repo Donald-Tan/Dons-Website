@@ -1,5 +1,5 @@
 // src/components/InvestmentsComponent/PortfolioGraph.jsx
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   AreaChart,
   Area,
@@ -89,10 +89,10 @@ export const PortfolioGraph = () => {
   const MAX_POINTS = 200;
 
   // Cache key for localStorage
-  const getCacheKey = (tf) => `portfolio_history_${tf.span}_${tf.interval}`;
+  const getCacheKey = useCallback((tf) => `portfolio_history_${tf.span}_${tf.interval}`, []);
 
   // Extract data processing logic for reuse
-  const processHistoryData = (data, fromFetch = true) => {
+  const processHistoryData = useCallback((data, fromFetch = true) => {
     if (!Array.isArray(data) || data.length === 0) {
       setHistory([]);
       setYDomain([0, "auto"]);
@@ -118,9 +118,9 @@ export const PortfolioGraph = () => {
     const min = Math.min(...formatted.map((d) => d.market_value));
     const max = Math.max(...formatted.map((d) => d.market_value));
     setYDomain(getNiceDomain(min, max));
-  };
+  }, []);
 
-  const fetchHistory = async (tf, showLoadingSpinner = true) => {
+  const fetchHistory = useCallback(async (tf, showLoadingSpinner = true) => {
     if (abortControllerRef.current) abortControllerRef.current.abort?.();
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -159,7 +159,7 @@ export const PortfolioGraph = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getCacheKey, processHistoryData, MAX_POINTS]);
 
   useEffect(() => {
     // Try to load from cache immediately for instant display
@@ -186,7 +186,7 @@ export const PortfolioGraph = () => {
       clearInterval(intervalId);
       abortControllerRef.current?.abort?.();
     };
-  }, [timeframe]);
+  }, [timeframe, fetchHistory, getCacheKey, processHistoryData]);
 
   // Handle tooltip hover
   const handleTooltipHover = (value) => {
