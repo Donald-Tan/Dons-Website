@@ -163,44 +163,58 @@ export const InvestmentProfile = ({ isFlipped, isMobile }) => {
                 </div>
               </div>
             </div>
-            <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.75rem', opacity: 0.7 }}>
-              Tap to read more
-            </div>
           </div>
 
           {/* Back of card - Story */}
-          <div className="flip-card-back" style={{ display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem' }}>My Investment Journey</h3>
+          <div
+            className="flip-card-back"
+            style={{ display: "flex", flexDirection: "column" }}
+          >
             <div
               className="profile-story scrollable-story"
               style={{
                 ...styles.story,
-                overflowY: 'auto',
-                overflowX: 'hidden',
-                flex: '1',
+                overflowY: "auto",
+                overflowX: "hidden",
+                flex: "1",
                 minHeight: 0,
-                WebkitOverflowScrolling: 'touch',
+                WebkitOverflowScrolling: "touch",
+                touchAction: "pan-y",
+              }}
+              onTouchStart={(e) => {
+                // Allow scrolling by stopping event from bubbling to parent flip handler
+                e.stopPropagation();
+              }}
+              onTouchMove={(e) => {
+                // Allow scrolling by stopping event from bubbling to parent flip handler
+                e.stopPropagation();
+              }}
+              onTouchEnd={(e) => {
+                // Prevent flip when releasing after scroll
+                e.stopPropagation();
               }}
             >
-              <div style={{ paddingRight: '0.5rem' }}>
+              <div style={{ paddingRight: "0.5rem" }}>
                 <p style={{ margin: 0 }}>
-                  Investing since the age of 15, I have developed the mindset and
-                  knowledge required to become a thoughtful investor. Today, my approach
-                  blends those principles with analytical research inspired by investors
-                  and commentators such as Luke Lango, Louis Navellier, and Eric Fry
-                  (InvestorPlace).
+                  Investing since the age of 15, I have developed the mindset
+                  and knowledge required to become a thoughtful investor. Today,
+                  my approach blends those principles with analytical research
+                  inspired by investors and commentators such as Luke Lango,
+                  Louis Navellier, and Eric Fry (InvestorPlace).
                 </p>
-                <p style={{ marginTop: '1rem' }}>
+                <p style={{ marginTop: "1rem" }}>
                   I focus on technology, emerging markets, and growth
-                  opportunities that align with long-term innovation. My portfolio
-                  reflects a balanced approach between established tech giants and
-                  emerging disruptors in sectors like AI, clean energy, and fintech.
+                  opportunities that align with long-term innovation. My
+                  portfolio reflects a balanced approach between established
+                  tech giants and emerging disruptors in sectors like AI, clean
+                  energy, and fintech.
                 </p>
-                <p style={{ marginTop: '1rem' }}>
-                  Risk management is core to my strategy, combining diversification
-                  across sectors and geographies with careful position sizing. I maintain
-                  a disciplined approach to entry and exit points while staying flexible
-                  to adapt to market conditions.
+                <p style={{ marginTop: "1rem" }}>
+                  Risk management is core to my strategy, combining
+                  diversification across sectors and geographies with careful
+                  position sizing. I maintain a disciplined approach to entry
+                  and exit points while staying flexible to adapt to market
+                  conditions.
                 </p>
               </div>
             </div>
@@ -235,11 +249,12 @@ export const InvestmentProfile = ({ isFlipped, isMobile }) => {
           <div className="profile-story" style={styles.story}>
             <p>
               Investing since the age of 15, I have developed the mindset and
-              knowledge required to become a thoughtful investor. Today, my approach
-              blends those principles with analytical research inspired by investors
-              and commentators such as Luke Lango, Louis Navellier, and Eric Fry
-              (InvestorPlace). I focus on technology, emerging markets, and growth
-              opportunities that align with long-term innovation.
+              knowledge required to become a thoughtful investor. Today, my
+              approach blends those principles with analytical research inspired
+              by investors and commentators such as Luke Lango, Louis Navellier,
+              and Eric Fry (InvestorPlace). I focus on technology, emerging
+              markets, and growth opportunities that align with long-term
+              innovation.
             </p>
           </div>
         </div>
