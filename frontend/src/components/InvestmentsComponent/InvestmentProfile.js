@@ -174,22 +174,15 @@ export const InvestmentProfile = ({ isFlipped, isMobile }) => {
               className="profile-story scrollable-story"
               style={{
                 ...styles.story,
-                overflowY: 'scroll',
+                overflowY: 'auto',
                 overflowX: 'hidden',
                 flex: '1',
                 display: 'flex',
                 alignItems: 'flex-start',
                 WebkitOverflowScrolling: 'touch',
-                touchAction: 'pan-y',
                 maxHeight: '100%',
               }}
               onTouchStart={(e) => {
-                e.stopPropagation();
-              }}
-              onTouchMove={(e) => {
-                e.stopPropagation();
-              }}
-              onTouchEnd={(e) => {
                 e.stopPropagation();
               }}
             >

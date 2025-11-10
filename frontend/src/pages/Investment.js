@@ -21,18 +21,6 @@ export const Investment = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Prevent body scroll when card is flipped on mobile
-  useEffect(() => {
-    if (isMobile && isFlipped) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isMobile, isFlipped]);
 
   const handleFlip = (e) => {
     if (isMobile) {
