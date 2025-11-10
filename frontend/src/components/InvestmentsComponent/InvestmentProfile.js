@@ -181,18 +181,6 @@ export const InvestmentProfile = ({ isFlipped, isMobile }) => {
                 WebkitOverflowScrolling: "touch",
                 touchAction: "pan-y",
               }}
-              onTouchStart={(e) => {
-                // Allow scrolling by stopping event from bubbling to parent flip handler
-                e.stopPropagation();
-              }}
-              onTouchMove={(e) => {
-                // Allow scrolling by stopping event from bubbling to parent flip handler
-                e.stopPropagation();
-              }}
-              onTouchEnd={(e) => {
-                // Prevent flip when releasing after scroll
-                e.stopPropagation();
-              }}
             >
               <div style={{ paddingRight: "0.5rem" }}>
                 <p style={{ margin: 0 }}>

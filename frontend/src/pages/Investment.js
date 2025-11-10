@@ -23,11 +23,20 @@ export const Investment = () => {
   }, []);
 
   const handleTouchStart = (e) => {
+    // Don't track touches on the scrollable story area
+    if (e.target.closest('.scrollable-story')) {
+      return;
+    }
     setTouchStartY(e.touches[0].clientY);
   };
 
   const handleFlip = (e) => {
     if (!isMobile) return;
+
+    // Don't flip if touching the scrollable story area
+    if (e.target.closest('.scrollable-story')) {
+      return;
+    }
 
     // If touch moved more than 10px, it's a scroll not a tap
     if (e.changedTouches && e.changedTouches[0]) {
