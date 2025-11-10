@@ -169,7 +169,8 @@ export const InvestmentProfile = ({ isFlipped, isMobile }) => {
           </div>
 
           {/* Back of card - Story */}
-          <div className="flip-card-back">
+          <div className="flip-card-back" style={{ display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem' }}>My Investment Journey</h3>
             <div
               className="profile-story scrollable-story"
               style={{
@@ -177,20 +178,31 @@ export const InvestmentProfile = ({ isFlipped, isMobile }) => {
                 overflowY: 'auto',
                 overflowX: 'hidden',
                 flex: '1',
-                display: 'flex',
-                alignItems: 'flex-start',
+                minHeight: 0,
                 WebkitOverflowScrolling: 'touch',
-                maxHeight: '100%',
               }}
             >
-              <p style={{ margin: 0, paddingRight: '0.5rem' }}>
-                Investing since the age of 15, I have developed the mindset and
-                knowledge required to become a thoughtful investor. Today, my approach
-                blends those principles with analytical research inspired by investors
-                and commentators such as Luke Lango, Louis Navellier, and Eric Fry
-                (InvestorPlace). I focus on technology, emerging markets, and growth
-                opportunities that align with long-term innovation.
-              </p>
+              <div style={{ paddingRight: '0.5rem' }}>
+                <p style={{ margin: 0 }}>
+                  Investing since the age of 15, I have developed the mindset and
+                  knowledge required to become a thoughtful investor. Today, my approach
+                  blends those principles with analytical research inspired by investors
+                  and commentators such as Luke Lango, Louis Navellier, and Eric Fry
+                  (InvestorPlace).
+                </p>
+                <p style={{ marginTop: '1rem' }}>
+                  I focus on technology, emerging markets, and growth
+                  opportunities that align with long-term innovation. My portfolio
+                  reflects a balanced approach between established tech giants and
+                  emerging disruptors in sectors like AI, clean energy, and fintech.
+                </p>
+                <p style={{ marginTop: '1rem' }}>
+                  Risk management is core to my strategy, combining diversification
+                  across sectors and geographies with careful position sizing. I maintain
+                  a disciplined approach to entry and exit points while staying flexible
+                  to adapt to market conditions.
+                </p>
+              </div>
             </div>
           </div>
         </>
