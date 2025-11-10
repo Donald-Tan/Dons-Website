@@ -9,6 +9,7 @@ import { PortfolioDiversityChart } from "../components/InvestmentsComponent/Port
 export const Investment = () => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [touchStartY, setTouchStartY] = useState(0);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -21,15 +22,23 @@ export const Investment = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const handleTouchStart = (e) => {
+    setTouchStartY(e.touches[0].clientY);
+  };
 
   const handleFlip = (e) => {
-    if (isMobile) {
-      // Don't flip if clicking on the scrollable story area
-      if (e.target.closest('.scrollable-story')) {
-        return;
+    if (!isMobile) return;
+
+    // If touch moved more than 10px, it's a scroll not a tap
+    if (e.changedTouches && e.changedTouches[0]) {
+      const touchEndY = e.changedTouches[0].clientY;
+      const touchDiff = Math.abs(touchEndY - touchStartY);
+      if (touchDiff > 10) {
+        return; // This was a scroll, don't flip
       }
-      setIsFlipped(!isFlipped);
     }
+
+    setIsFlipped(!isFlipped);
   };
 
   return (
@@ -45,7 +54,9 @@ export const Investment = () => {
       {/* Profile takes 1 column - on first row, right of graph */}
       <div
         className={`profile-box ${isMobile ? 'flip-container' : ''} ${isFlipped ? 'flipped' : ''}`}
-        onClick={handleFlip}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleFlip}
+        onClick={!isMobile ? handleFlip : undefined}
       >
         <InvestmentProfile isFlipped={isFlipped} isMobile={isMobile} />
       </div>

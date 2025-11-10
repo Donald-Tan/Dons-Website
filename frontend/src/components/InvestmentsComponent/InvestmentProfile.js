@@ -182,9 +182,6 @@ export const InvestmentProfile = ({ isFlipped, isMobile }) => {
                 WebkitOverflowScrolling: 'touch',
                 maxHeight: '100%',
               }}
-              onTouchStart={(e) => {
-                e.stopPropagation();
-              }}
             >
               <p style={{ margin: 0, paddingRight: '0.5rem' }}>
                 Investing since the age of 15, I have developed the mindset and
