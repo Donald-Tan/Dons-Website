@@ -96,6 +96,13 @@
   .profile-box.flip-container.flipped .flip-card-back {
     transform: rotateY(0deg);
   }
+
+  /* Enable touch scrolling on flipped back card */
+  .profile-box.flip-container.flipped .flip-card-back .profile-story {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    pointer-events: auto;
+  }
   
   /* Tables - 2 columns each (half width) */
   .portfolio-box,
