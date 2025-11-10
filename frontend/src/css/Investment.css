@@ -103,6 +103,16 @@
     touch-action: pan-y;
     pointer-events: auto;
   }
+
+  /* Hide scrollbar but allow scrolling */
+  .scrollable-story {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  .scrollable-story::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
   
   /* Tables - 2 columns each (half width) */
   .portfolio-box,

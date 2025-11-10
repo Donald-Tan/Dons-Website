@@ -171,10 +171,11 @@ export const InvestmentProfile = ({ isFlipped, isMobile }) => {
           {/* Back of card - Story */}
           <div className="flip-card-back">
             <div
-              className="profile-story"
+              className="profile-story scrollable-story"
               style={{
                 ...styles.story,
-                overflow: 'auto',
+                overflowY: 'scroll',
+                overflowX: 'hidden',
                 flex: '1',
                 display: 'flex',
                 alignItems: 'flex-start',
@@ -182,10 +183,17 @@ export const InvestmentProfile = ({ isFlipped, isMobile }) => {
                 touchAction: 'pan-y',
                 maxHeight: '100%',
               }}
-              onTouchStart={(e) => e.stopPropagation()}
-              onTouchMove={(e) => e.stopPropagation()}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+              }}
+              onTouchMove={(e) => {
+                e.stopPropagation();
+              }}
+              onTouchEnd={(e) => {
+                e.stopPropagation();
+              }}
             >
-              <p style={{ margin: 0 }}>
+              <p style={{ margin: 0, paddingRight: '0.5rem' }}>
                 Investing since the age of 15, I have developed the mindset and
                 knowledge required to become a thoughtful investor. Today, my approach
                 blends those principles with analytical research inspired by investors

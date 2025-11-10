@@ -21,8 +21,25 @@ export const Investment = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const handleFlip = () => {
+  // Prevent body scroll when card is flipped on mobile
+  useEffect(() => {
+    if (isMobile && isFlipped) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobile, isFlipped]);
+
+  const handleFlip = (e) => {
     if (isMobile) {
+      // Don't flip if clicking on the scrollable story area
+      if (e.target.closest('.scrollable-story')) {
+        return;
+      }
       setIsFlipped(!isFlipped);
     }
   };
