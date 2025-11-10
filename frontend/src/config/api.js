@@ -4,7 +4,7 @@
 const API_BASE_URL = process.env.REACT_APP_API_URL ||
   (process.env.NODE_ENV === 'development'
     ? 'http://localhost:8000'
-    : 'http://129.80.77.176:8000');
+    : 'https://researcher-impossible-disc-crowd.trycloudflare.com');
 
 export const API_ENDPOINTS = {
   portfolio: `${API_BASE_URL}/api/portfolio`,
