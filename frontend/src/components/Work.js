@@ -19,23 +19,26 @@ const Work = () => {
         <div className="work-intro">
           <h2 className="work-main-title">Work Experience</h2>
           <p className="work-tagline">
-            From a gym assistant to a full-stack developer, Donald's journey in
-            the world of work has been a testament to his dedication and
-            commitment to excellence. Through his experiences, he has honed his
-            skills in problem-solving, communication, and teamwork, enabling him
-            to contribute effectively to diverse projects.
+            From leading a team of 12+ developers on a mental health platform to
+            crafting full-stack solutions for healthcare clients, Donald has
+            grown from building individual features to architecting entire
+            systems. His journey reflects a commitment to creating meaningful
+            digital experiences that directly impact users' lives, whether
+            through accessible mental health tools or streamlined clinic
+            operations.
           </p>
         </div>
 
         <div className="work-content">
-          <WorkExperienceCard />
+          <MonroeExperienceCard />
+          <ICareExperienceCard />
         </div>
       </div>
     </section>
   );
 };
 
-const WorkExperienceCard = () => {
+const MonroeExperienceCard = () => {
   const [selectedView, setSelectedView] = useState("overview");
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -44,37 +47,37 @@ const WorkExperienceCard = () => {
       icon: <Code size={20} />,
       title: "Full-Stack Development",
       description:
-        "Built and deployed a responsive dental clinic website using React, Vite, and Tailwind CSS, hosted on Vercel for optimal performance",
-    },
-    {
-      icon: <MapPin size={20} />,
-      title: "API Integration",
-      description:
-        "Integrated Google Maps API and Elfsight API for clinic location services and patient testimonials to enhance user experience",
+        "Designed and deployed responsive full-stack clinic website using React, Vite, Tailwind CSS, and Vercel with MongoDB backend, managing ~100 monthly visitors and 300+ appointment requests with 95%+ uptime",
     },
     {
       icon: <TrendingUp size={20} />,
-      title: "Data Analytics",
+      title: "SEO & Analytics Integration",
       description:
-        "Implemented data visualizations with Recharts to track performance trends and enhance clinic analytics",
-    },
-    {
-      icon: <Users size={20} />,
-      title: "Agile Collaboration",
-      description:
-        "Collaborated with a partner using Scrum timeline, conducting weekly sprints and standups for efficient project delivery",
+        "Integrated Google Maps, Elfsight APIs, and Google Analytics achieving 65% conversion rate increase and 120% organic traffic growth through comprehensive SEO optimization and Core Web Vitals improvements",
     },
     {
       icon: <LayoutDashboardIcon size={20} />,
-      title: "Dashboard Management",
+      title: "Admin Dashboard",
       description:
-        "Created a dashboard for clinic administration, streamlining operations",
+        "Built admin dashboard with appointment management, automated email/SMS notifications, payment integration, and Recharts analytics, reducing administrative overhead by 40%",
+    },
+    {
+      icon: <Rocket size={20} />,
+      title: "Agile Development",
+      description:
+        "Deployed 30+ feature updates in bi-weekly sprints, collaborating directly with clinic stakeholders in weekly sprint reviews to prioritize features and iterate on design improvements",
     },
     {
       icon: <Database size={20} />,
-      title: "Database Integration",
+      title: "Database Management",
       description:
-        "Integrated MongoDB for efficient data storage and retrieval, ensuring scalability and security",
+        "Integrated MongoDB for efficient data storage and retrieval, handling appointment requests, patient data, and clinic analytics with high reliability",
+    },
+    {
+      icon: <Users size={20} />,
+      title: "Stakeholder Collaboration",
+      description:
+        "Worked directly with clinic stakeholders to gather feedback, prioritize feature development, and ensure alignment with business objectives",
     },
   ];
 
@@ -142,7 +145,7 @@ const WorkExperienceCard = () => {
           <div className="work-meta">
             <span className="work-date">
               <Calendar size={14} />
-              March 2025 – June 2025
+              Aug 2024 – Jun 2025
             </span>
             <span className="work-location">
               <MapPin size={14} />
@@ -236,6 +239,211 @@ const WorkExperienceCard = () => {
                 standups, and iterative development cycles. This approach
                 ensured consistent progress, rapid feedback integration, and
                 successful project delivery within the 16-week timeline.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const ICareExperienceCard = () => {
+  const [selectedView, setSelectedView] = useState("overview");
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const responsibilities = [
+    {
+      icon: <Users size={20} />,
+      title: "Team Leadership",
+      description:
+        "Leading frontend development for dual AI mental health chatbot platform, managing and onboarding 12+ student developers while collaborating with research faculty in Agile environment",
+    },
+    {
+      icon: <Brush size={20} />,
+      title: "Platform Redesign",
+      description:
+        "Spearheaded complete V2 to V3 platform redesign based on IRB-approved user studies, implementing conversation history, context retention, personalized dashboards, and progress tracking—achieving 40% improvement in user satisfaction scores",
+    },
+    {
+      icon: <Code size={20} />,
+      title: "Core Features",
+      description:
+        "Architected theme switching (dark/light/system), real-time WebSocket messaging with reconnection logic, and accessible UI following WCAG 2.1 guidelines, conducting A/B testing to optimize user flows",
+    },
+    {
+      icon: <TrendingUp size={20} />,
+      title: "Performance Optimization",
+      description:
+        "Engineered performance optimizations via code splitting, lazy loading, and caching strategies that reduced load times by 45%, while establishing React Testing Library infrastructure achieving 80%+ code coverage",
+    },
+    {
+      icon: <LayoutDashboardIcon size={20} />,
+      title: "Component Library",
+      description:
+        "Developed reusable component library with documentation and CI/CD pipelines with Docker containerization, reducing development time through standardized patterns",
+    },
+    {
+      icon: <Rocket size={20} />,
+      title: "Quality Assurance",
+      description:
+        "Established rigorous code review processes and testing infrastructure to maintain high code quality and ensure platform reliability for mental health users",
+    },
+  ];
+
+  const tools = [
+    "React",
+    "TypeScript",
+    "WebSockets",
+    "Docker",
+    "Testing Library",
+    "WCAG 2.1",
+    "CI/CD",
+    "Figma",
+  ];
+
+  const timeline = [
+    {
+      phase: "Team Building & Onboarding",
+      duration: "Sept 2023 - Dec 2023",
+      description:
+        "Onboarded 12+ student developers, established Agile workflows, and coordinated with research faculty to define platform goals",
+      icon: <Users size={18} />,
+    },
+    {
+      phase: "User Research & Planning",
+      duration: "Jan 2024 - Mar 2024",
+      description:
+        "Conducted IRB-approved user studies, analyzed feedback, and planned V3 redesign with focus on conversation history and personalization",
+      icon: <LayoutDashboardIcon size={18} />,
+    },
+    {
+      phase: "V3 Platform Redesign",
+      duration: "Apr 2024 - Aug 2024",
+      description:
+        "Led complete frontend overhaul implementing personalized dashboards, progress tracking, and context retention features",
+      icon: <Brush size={18} />,
+    },
+    {
+      phase: "Accessibility & Testing",
+      duration: "Sept 2024 - Dec 2024",
+      description:
+        "Implemented WCAG 2.1 guidelines, conducted A/B testing, and established comprehensive testing infrastructure with 80%+ coverage",
+      icon: <Code size={18} />,
+    },
+    {
+      phase: "Performance & Optimization",
+      duration: "Jan 2025 - Present",
+      description:
+        "Optimized load times through code splitting and caching, achieving 45% performance improvement while maintaining component library",
+      icon: <TrendingUp size={18} />,
+    },
+  ];
+
+  return (
+    <div className="work-card">
+      <div className="work-header" onClick={() => setIsExpanded(!isExpanded)}>
+        <div className="work-title-section">
+          <h3 className="work-position">Frontend Lead</h3>
+          <p className="work-company">UW iCare Mental Health Platform</p>
+          <div className="work-meta">
+            <span className="work-date">
+              <Calendar size={14} />
+              Sept 2023 – Present
+            </span>
+            <span className="work-location">
+              <MapPin size={14} />
+              University of Washington
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className={`work-tabs ${isExpanded ? "show" : ""}`}>
+        <button
+          className={`work-tab ${selectedView === "overview" ? "active" : ""}`}
+          onClick={() => setSelectedView("overview")}
+        >
+          Overview
+        </button>
+        <button
+          className={`work-tab ${selectedView === "tools" ? "active" : ""}`}
+          onClick={() => setSelectedView("tools")}
+        >
+          Tech Stack
+        </button>
+        <button
+          className={`work-tab ${selectedView === "timeline" ? "active" : ""}`}
+          onClick={() => setSelectedView("timeline")}
+        >
+          Timeline
+        </button>
+      </div>
+
+      <div className={`work-body ${isExpanded ? "show" : ""}`}>
+        {selectedView === "overview" && (
+          <div className="work-overview">
+            <div className="work-responsibilities">
+              {responsibilities.map((item, idx) => (
+                <div key={idx} className="responsibility-item">
+                  <div className="responsibility-icon">{item.icon}</div>
+                  <div className="responsibility-content">
+                    <h4 className="responsibility-title">{item.title}</h4>
+                    <p className="responsibility-desc">{item.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {selectedView === "tools" && (
+          <div className="work-tools">
+            <div className="tools-grid">
+              {tools.map((tool, idx) => (
+                <div key={idx} className="tool-badge">
+                  {tool}
+                </div>
+              ))}
+            </div>
+            <div className="tools-description">
+              <p>
+                Built with accessibility, performance, and user experience at
+                the forefront. Leveraged modern React patterns, real-time
+                communication, and comprehensive testing to create a reliable
+                mental health platform that serves vulnerable users.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {selectedView === "timeline" && (
+          <div className="work-timeline">
+            <div className="timeline-grid">
+              {timeline.map((item, idx) => (
+                <div key={idx} className="timeline-card">
+                  <div className="timeline-card-header">
+                    <div className="timeline-icon">{item.icon}</div>
+                    <div className="timeline-number">
+                      <span>{String(idx + 1).padStart(2, "0")}</span>
+                    </div>
+                  </div>
+                  <div className="timeline-card-body">
+                    <h4 className="timeline-phase">{item.phase}</h4>
+                    <p className="timeline-duration">{item.duration}</p>
+                    <p className="timeline-desc">{item.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="timeline-summary">
+              <h4 className="timeline-summary-title">Ongoing Development</h4>
+              <p>
+                Continuous iteration and improvement based on user feedback and
+                research findings. Working closely with faculty researchers and
+                student developers to evolve the platform and expand its
+                capabilities while maintaining high standards for accessibility
+                and performance.
               </p>
             </div>
           </div>
