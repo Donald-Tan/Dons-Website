@@ -95,44 +95,45 @@ const MonroeExperienceCard = () => {
   const timeline = [
     {
       phase: "Planning & Discovery",
-      duration: "Week 1",
+      duration: "Aug 2024",
       description:
         "Initial client meetings, requirements gathering, and project scope definition with weekly SCRUM sessions",
       icon: <LayoutDashboardIcon size={18} />,
     },
     {
       phase: "Design & Architecture",
-      duration: "Week 2",
+      duration: "Aug 2024",
       description:
         "UI/UX wireframing, database schema design, and tech stack finalization",
       icon: <Brush size={18} />,
     },
     {
-      phase: "Frontend Development",
-      duration: "Week 3-5",
-      description: "Frontend development with React, Vite, and Tailwind CSS",
+      phase: "Full-Stack Development",
+      duration: "Sept - Nov 2024",
+      description:
+        "Built responsive frontend with React, Vite, and Tailwind CSS. Developed backend with Node.js, Express, and MongoDB, ensuring scalability and security",
       icon: <Code size={18} />,
     },
     {
-      phase: "Backend Development",
-      duration: "Week 6-8",
+      phase: "Testing & Optimization",
+      duration: "Nov - Dec 2024",
       description:
-        "Backend development with Node.js, Express, and MongoDB, ensuring scalability and security",
-      icon: <Database size={18} />,
-    },
-    {
-      phase: "Debug, Testing & Review",
-      duration: "Week 9-11",
-      description:
-        "Quality assurance, client feedback integration, and performance optimization",
+        "Quality assurance, SEO optimization, Core Web Vitals improvements, and client feedback integration achieving 65% conversion rate increase",
       icon: <Bug size={18} />,
     },
     {
       phase: "Launch & Deployment",
-      duration: "Week 12",
+      duration: "Dec 2024",
       description:
-        "Final deployment on Vercel with continuous monitoring and post-launch support",
+        "Final deployment on Vercel with Google Analytics integration and automated notification systems",
       icon: <Rocket size={18} />,
+    },
+    {
+      phase: "Maintenance & Updates",
+      duration: "Jan 2025 - Present",
+      description:
+        "Ongoing website maintenance, deploying 30+ feature updates in bi-weekly sprints, monitoring performance, and ensuring 95%+ uptime while managing 300+ appointment requests",
+      icon: <TrendingUp size={18} />,
     },
   ];
 
@@ -304,39 +305,39 @@ const ICareExperienceCard = () => {
 
   const timeline = [
     {
-      phase: "Team Building & Onboarding",
-      duration: "Sept 2023 - Dec 2023",
+      phase: "Team Leadership & Onboarding",
+      duration: "Ongoing",
       description:
-        "Onboarded 12+ student developers, established Agile workflows, and coordinated with research faculty to define platform goals",
+        "Continuously onboard and manage 12+ student developers as team needs evolve, establish Agile workflows, and coordinate with research faculty on platform goals",
       icon: <Users size={18} />,
     },
     {
-      phase: "User Research & Planning",
-      duration: "Jan 2024 - Mar 2024",
-      description:
-        "Conducted IRB-approved user studies, analyzed feedback, and planned V3 redesign with focus on conversation history and personalization",
-      icon: <LayoutDashboardIcon size={18} />,
-    },
-    {
       phase: "V3 Platform Redesign",
-      duration: "Apr 2024 - Aug 2024",
+      duration: "Q2-Q3 2024",
       description:
-        "Led complete frontend overhaul implementing personalized dashboards, progress tracking, and context retention features",
+        "Led complete frontend overhaul based on IRB-approved user studies, implementing conversation history, context retention, personalized dashboards, and progress tracking features",
       icon: <Brush size={18} />,
     },
     {
       phase: "Accessibility & Testing",
-      duration: "Sept 2024 - Dec 2024",
+      duration: "Quarterly",
       description:
-        "Implemented WCAG 2.1 guidelines, conducted A/B testing, and established comprehensive testing infrastructure with 80%+ coverage",
+        "Implemented WCAG 2.1 guidelines, conduct ongoing A/B testing, and maintain comprehensive testing infrastructure with 80%+ code coverage across releases",
       icon: <Code size={18} />,
     },
     {
       phase: "Performance & Optimization",
-      duration: "Jan 2025 - Present",
+      duration: "Continuous",
       description:
-        "Optimized load times through code splitting and caching, achieving 45% performance improvement while maintaining component library",
+        "Optimize load times through code splitting, lazy loading, and caching strategies achieving 45% performance improvement, maintain component library and CI/CD pipelines",
       icon: <TrendingUp size={18} />,
+    },
+    {
+      phase: "User Research & Iteration",
+      duration: "Per Release Cycle",
+      description:
+        "Conduct user studies, analyze feedback, and plan platform improvements with focus on enhancing user experience and platform capabilities based on research findings",
+      icon: <LayoutDashboardIcon size={18} />,
     },
   ];
 

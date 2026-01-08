@@ -35,10 +35,29 @@ function ScrollToTop() {
   return null;
 }
 
+function PageTitle() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const titles = {
+      "/": "Donald Tan - Home",
+      "/About": "Donald Tan - About",
+      "/Contact": "Donald Tan - Contact",
+      "/Investment": "Donald Tan - Investments",
+      "/Travel": "Donald Tan - Travel",
+      "/Featured": "Donald Tan - Featured",
+    };
+    document.title = titles[pathname] || "Donald Tan - Portfolio";
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   return (
     <Router>
       <ScrollToTop />
+      <PageTitle />
       <NavBar />
       <Routes>
         <Route path="/" element={<Home />} />

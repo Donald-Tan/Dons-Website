@@ -139,8 +139,9 @@
       inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     cursor: pointer;
-    height: fit-content;
     margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
   }
   
   .work-card:hover {
@@ -160,13 +161,17 @@
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 
+    border: none;
+    box-shadow:
       0 4px 12px rgba(0, 0, 0, 0.15),
       inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
     padding: 2.5rem;
+    margin-bottom: -2px;
     color: white;
     transition: all 0.3s ease;
+    flex: 1;
+    display: flex;
+    align-items: center;
   }
   
   .work-title-section {
@@ -530,27 +535,27 @@
      EDUCATION SECTION - FIXED RESPONSIVE
      ========================= */
   .education-section {
-    padding: 4rem 2rem;
+    padding: 0;
     background: linear-gradient(135deg, var(--canyon-cream) 0%, #f5ebe0 100%);
     position: relative;
   }
-  
+
   .education-section::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: 
+    background:
       radial-gradient(circle at 70% 40%, rgba(155, 126, 92, 0.08) 0%, transparent 50%),
       radial-gradient(circle at 30% 80%, rgba(166, 124, 109, 0.08) 0%, transparent 50%);
   }
-  
+
   .education-wrapper {
     max-width: 1400px;
     margin: 0 auto;
     position: relative;
     z-index: 1;
   }
-  
+
   .education-intro {
     text-align: center;
     margin-bottom: 3rem;
@@ -583,99 +588,149 @@
     font-family: 'Helvetica', 'Arial', sans-serif;
   }
   
-  .education-cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  /* Education Card */
-  .edu-card {
-    position: relative;
+  /* Split-Screen Education Layout */
+  .education-split-layout {
     display: flex;
-    flex-direction: column;
-    transition: all 0.4s ease;
-  }
-  
-  .edu-card:hover {
-    transform: translateY(-6px);
-  }
-  
-  .edu-bg {
-    position: relative;
+    min-height: 700px;
     width: 100%;
+  }
+
+  .edu-image-panel {
+    position: relative;
+    flex: 0 0 40%;
     overflow: hidden;
   }
-  
-  .edu-bg img {
+
+  .edu-full-image {
     width: 100%;
-    height: 320px;
+    height: 100%;
     object-fit: cover;
-    display: block;
   }
-  
-  .edu-bg img[alt="University of Washington"]{
-    border-radius: 50px 0px 50px 0px;
-  }
-  
-  .edu-bg img[alt="Seattle Central College"]{
-    border-radius: 0px 50px 0px 50px;
-  }
-  
-  .edu-content {
-    position: relative;
-    padding: 1.5rem 0;
+
+  .edu-content-panel {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 3rem;
     display: flex;
-    flex-direction: column;
-    text-align: center;
-    color: var(--canyon-deep);
+    align-items: center;
+    justify-content: center;
   }
-  
-  .edu-name {
-    font-size: 1.5rem;
+
+  .edu-content-inner {
+    width: 100%;
+    max-width: 700px;
+  }
+
+  .edu-intro {
+    margin-bottom: 3rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .edu-header-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .edu-university-name {
+    font-size: 2.5rem;
     font-weight: 700;
-    margin-bottom: 0.75rem;
     color: white;
     font-family: 'Georgia', serif;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
   }
-  
-  .edu-degree {
+
+  .edu-degree-title {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .edu-meta-info {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .edu-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: rgba(255, 255, 255, 0.85);
     font-size: 0.95rem;
     font-weight: 500;
-    margin-bottom: 0.5rem;
-    line-height: 1.4;
-    color: rgba(255, 255, 255, 0.9);
   }
-  
-  .edu-meta {
-    font-size: 0.875rem;
+
+  .edu-meta-item svg {
+    flex-shrink: 0;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .edu-description {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 0.5rem;
+  }
+
+  .edu-description p {
     color: rgba(255, 255, 255, 0.85);
-    margin-bottom: 1.25rem;
-  }
-  
-  .courses-section {
-    margin-top: 0.5rem;
-  }
-  
-  .courses-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    margin-bottom: 0.75rem;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.9);
-  }
-  
-  .courses-list {
-    list-style: none;
-    padding: 0;
+    font-size: 1rem;
+    line-height: 1.8;
     margin: 0;
-    text-align: center;
+  }
+
+  .edu-courses-section {
+    margin-top: 2rem;
+  }
+
+  .courses-header {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    color: white;
+  }
+
+  .courses-header h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.5px;
+  }
+
+  .courses-header svg {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .courses-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+  }
+
+  .course-pill {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 2rem;
+    padding: 0.625rem 1.125rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .course-pill:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
   }
   
   .courses-list li {
@@ -985,20 +1040,16 @@
       padding: 3.5rem 1.5rem;
     }
   
-    .education-cards {
-      gap: 2rem;
+    .education-split-layout {
+      min-height: 500px;
     }
-  
-    .edu-bg img {
-      height: 280px;
+
+    .edu-content-panel {
+      padding: 2.5rem;
     }
-  
-    .edu-name {
-      font-size: 1.4rem;
-    }
-  
-    .edu-degree {
-      font-size: 0.9rem;
+
+    .edu-university-name {
+      font-size: 2.25rem;
     }
   
     .projects-grid {
@@ -1059,29 +1110,36 @@
       font-size: 0.95rem;
     }
   
-    .education-cards {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
+    .education-split-layout {
+      flex-direction: column;
+      min-height: auto;
     }
-  
-    .edu-bg img {
-      height: 250px;
+
+    .edu-image-panel {
+      flex: 0 0 250px;
+      min-height: 250px;
     }
-  
-    .edu-name {
-      font-size: 1.375rem;
+
+    .edu-content-panel {
+      padding: 2rem 1.5rem;
+      border-left: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
     }
-  
-    .edu-degree {
-      font-size: 0.875rem;
+
+    .edu-university-name {
+      font-size: 2rem;
     }
-  
-    .edu-meta {
-      font-size: 0.8125rem;
+
+    .edu-degree-title {
+      font-size: 1rem;
     }
-  
-    .courses-list li {
-      font-size: 0.8125rem;
+
+    .edu-description {
+      padding: 1.25rem;
+    }
+
+    .edu-description p {
+      font-size: 0.95rem;
     }
   
     .work-header {
@@ -1212,34 +1270,34 @@
       margin-bottom: 2rem;
     }
   
-    .education-cards {
-      gap: 2rem;
+    .edu-image-panel {
+      flex: 0 0 220px;
+      min-height: 220px;
     }
-  
-    .edu-bg img {
-      height: 220px;
+
+    .edu-content-panel {
+      padding: 1.75rem 1.25rem;
     }
-  
-    .edu-bg img[alt="University of Washington"] {
-      border-radius: 30px 0px 30px 0px;
+
+    .edu-university-name {
+      font-size: 1.75rem;
     }
-  
-    .edu-bg img[alt="Seattle Central College"] {
-      border-radius: 0px 30px 0px 30px;
+
+    .edu-degree-title {
+      font-size: 0.95rem;
     }
-  
-    .edu-content {
-      padding: 1.25rem 0;
+
+    .edu-meta-item {
+      font-size: 0.875rem;
     }
-  
-    .edu-name {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
+
+    .courses-header h4 {
+      font-size: 1.1rem;
     }
-  
-    .edu-degree {
+
+    .course-pill {
       font-size: 0.8125rem;
-      margin-bottom: 0.4rem;
+      padding: 0.5rem 0.95rem;
     }
   
     .edu-meta {

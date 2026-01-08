@@ -14,22 +14,22 @@ export default function About() {
     {
       year: "2021",
       title: "Moved to USA",
-      place: "Started at Seattle Central College",
+      place: "Started at University of Washington",
     },
     {
       year: "2023",
-      title: "Associate Degree",
-      place: "Computer Science, Seattle Central",
+      title: "Frontend Lead",
+      place: "UW iCare Mental Health Platform",
     },
     {
-      year: "2023",
-      title: "University of Washington",
-      place: "Pursuing Bachelor's Degree",
+      year: "2024",
+      title: "Full-Stack Developer",
+      place: "Monroe Denture Clinic (Contract)",
     },
     {
       year: "2025",
       title: "Bachelor's Degree",
-      place: "Computer Science, UW",
+      place: "Computer Science & Software Engineering, UW",
     },
   ];
 
@@ -134,9 +134,8 @@ export default function About() {
             past five years. My journey started with a fascination for
             technology; growing up, I was always the kid who wanted to try the
             latest gadget or explore how things worked behind the screen. That
-            curiosity eventually led me to pursue both my Associate's degree at
-            Seattle Central College and a Bachelor's in Computer Science and
-            Computer Engineering at the University of Washington.
+            curiosity eventually led me to pursue a Bachelor's degree in Computer
+            Science and Software Engineering at the University of Washington.
           </p>
           <p className="story-text">
             I'm passionate about building meaningful digital experiences, which
