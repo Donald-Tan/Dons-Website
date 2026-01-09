@@ -124,11 +124,93 @@ async def _supabase_fetch_all_trades() -> List[Dict[str, Any]]:
         return []
 
 
+async def _supabase_fetch_positions() -> List[Dict[str, Any]]:
+    """Fetch cached portfolio positions from Supabase."""
+    if supabase is None:
+        return []
+    try:
+        resp = await supabase.table("portfolio_positions").select("*").order("last_updated", desc=True).execute()
+        return resp.data or []
+    except Exception as e:
+        logger.exception("Error fetching positions from Supabase: %s", e)
+        return []
+
+
+async def _supabase_upsert_positions(positions: List[Dict[str, Any]]):
+    """Cache portfolio positions to Supabase."""
+    if supabase is None or not positions:
+        return
+    try:
+        # Delete old positions first (fresh snapshot each time)
+        await supabase.table("portfolio_positions").delete().neq("id", "").execute()
+
+        # Add unique ID for each position (ticker as ID)
+        payload = []
+        for pos in positions:
+            payload.append({
+                "id": pos.get("ticker", "UNKNOWN"),
+                "ticker": pos.get("ticker"),
+                "name": pos.get("name"),
+                "quantity": pos.get("quantity"),
+                "avg_buy_price": pos.get("avg_buy_price"),
+                "current_price": pos.get("current_price"),
+                "market_value": pos.get("market_value"),
+                "unrealized_gain_loss": pos.get("unrealized_gain_loss"),
+                "percent_change": pos.get("percent_change"),
+                "last_updated": datetime.utcnow().isoformat(),
+            })
+
+        await supabase.table("portfolio_positions").insert(payload).execute()
+        logger.info("✅ Portfolio positions cached to Supabase (%d rows)", len(payload))
+    except Exception as e:
+        logger.exception("Error caching positions to Supabase: %s", e)
+
+
+async def _supabase_fetch_history(span: str = "day") -> List[Dict[str, Any]]:
+    """Fetch cached portfolio history from Supabase."""
+    if supabase is None:
+        return []
+    try:
+        resp = await supabase.table("portfolio_history").select("*").eq("span", span).order("timestamp", desc=True).limit(500).execute()
+        return resp.data or []
+    except Exception as e:
+        logger.exception("Error fetching history from Supabase: %s", e)
+        return []
+
+
+async def _supabase_upsert_history(history: List[Dict[str, Any]], span: str = "day"):
+    """Cache portfolio history to Supabase."""
+    if supabase is None or not history:
+        return
+    try:
+        # Delete old history for this span (keep last 7 days only to avoid huge table)
+        from datetime import timedelta
+        cutoff = (datetime.utcnow() - timedelta(days=7)).isoformat()
+        await supabase.table("portfolio_history").delete().eq("span", span).lt("timestamp", cutoff).execute()
+
+        # Prepare payload
+        payload = []
+        for item in history:
+            payload.append({
+                "timestamp": item.get("timestamp"),
+                "market_value": item.get("market_value"),
+                "baseline": item.get("baseline"),
+                "span": span,
+                "last_updated": datetime.utcnow().isoformat(),
+            })
+
+        # Upsert in batches
+        await _supabase_upsert_rows(payload, batch_size=100, retries=3)
+        logger.info("✅ Portfolio history cached to Supabase (%d rows for span=%s)", len(payload), span)
+    except Exception as e:
+        logger.exception("Error caching history to Supabase: %s", e)
+
+
 # -------------------------
-# Background job: sync trades -> supabase
+# Background job: sync all data -> supabase
 # -------------------------
-async def sync_trades():
-    """Background job: pull trades from Robinhood (via robin_client) and upsert to Supabase."""
+async def sync_all_data():
+    """Background job: pull trades, positions, and history from Robinhood and cache to Supabase."""
     if supabase is None:
         logger.warning("Supabase client not configured; skipping sync.")
         return
@@ -139,31 +221,44 @@ async def sync_trades():
         return
 
     async with _sync_lock:
+        # Sync trades
         try:
             logger.info("🔄 Starting trade sync from Robinhood...")
             trades = await get_all_trades_for_sync()
-            if not trades:
-                logger.info("No trades returned from robin_client; nothing to upsert.")
-                return
-
-            # normalize/ensure keys match DB schema (id, ticker, name, quantity, price, side, executed_at)
-            payload = []
-            for t in trades:
-                payload.append({
-                    "id": t.get("id"),
-                    "ticker": t.get("symbol"),
-                    "name": t.get("name"),
-                    "quantity": t.get("quantity"),
-                    "price": t.get("price"),
-                    "side": t.get("side"),
-                    "executed_at": t.get("executed_at"),
-                })
-
-            # Upsert in batches to avoid huge payloads
-            await _supabase_upsert_rows(payload, batch_size=40, retries=3)
-            logger.info("✅ Trades synced to Supabase. (%d rows) ", len(payload))
+            if trades:
+                payload = []
+                for t in trades:
+                    payload.append({
+                        "id": t.get("id"),
+                        "ticker": t.get("symbol"),
+                        "name": t.get("name"),
+                        "quantity": t.get("quantity"),
+                        "price": t.get("price"),
+                        "side": t.get("side"),
+                        "executed_at": t.get("executed_at"),
+                    })
+                await _supabase_upsert_rows(payload, batch_size=40, retries=3)
+                logger.info("✅ Trades synced to Supabase. (%d rows)", len(payload))
         except Exception as e:
             logger.exception("Trade sync failed: %s", e)
+
+        # Sync portfolio positions
+        try:
+            logger.info("🔄 Syncing portfolio positions...")
+            positions = await get_portfolio_positions()
+            if positions:
+                await _supabase_upsert_positions(positions)
+        except Exception as e:
+            logger.exception("Position sync failed: %s", e)
+
+        # Sync portfolio history (day view only for now)
+        try:
+            logger.info("🔄 Syncing portfolio history...")
+            history = await get_portfolio_performance(span="day", interval="5minute", bounds="trading", max_points=100)
+            if history:
+                await _supabase_upsert_history(history, span="day")
+        except Exception as e:
+            logger.exception("History sync failed: %s", e)
 
 
 # -------------------------
@@ -177,41 +272,83 @@ async def health():
 @app.get("/api/portfolio")
 async def api_portfolio():
     """
-    Return portfolio positions from cached robin_client (fast with longer cache).
-    The cache is refreshed every 60 seconds, so this endpoint is very fast.
+    Return portfolio positions from Supabase cache (instant), with Robinhood fallback.
     """
     from fastapi.responses import JSONResponse
+
+    # Try Supabase cache first
+    if supabase is not None:
+        try:
+            positions = await _supabase_fetch_positions()
+            if positions:
+                logger.info("✅ Serving portfolio from Supabase cache (%d positions)", len(positions))
+                return JSONResponse(
+                    content=positions,
+                    headers={
+                        "Cache-Control": "public, max-age=30",
+                        "X-Data-Source": "supabase-cache"
+                    }
+                )
+        except Exception as e:
+            logger.warning("Supabase fetch failed, falling back to Robinhood: %s", e)
+
+    # Fallback to Robinhood direct fetch
     try:
         positions = await get_portfolio_positions()
-        # Add HTTP caching headers - browser can cache for 30 seconds
+        # Also cache to Supabase for next time
+        if supabase and positions:
+            asyncio.create_task(_supabase_upsert_positions(positions))
         return JSONResponse(
             content=positions,
             headers={
                 "Cache-Control": "public, max-age=30",
-                "ETag": f"{hash(str(positions))}"
+                "X-Data-Source": "robinhood-direct"
             }
         )
     except Exception as e:
-        logger.exception("Error fetching positions")
+        logger.exception("Error fetching positions from Robinhood")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/portfolio/history")
 async def api_portfolio_history(span: str = "day", interval: str = "5minute", max_points: Optional[int] = None, starting_cash: Optional[float] = None):
+    """
+    Return portfolio history from Supabase cache (instant), with Robinhood fallback.
+    """
     from fastapi.responses import JSONResponse
+
+    # Try Supabase cache first
+    if supabase is not None:
+        try:
+            history = await _supabase_fetch_history(span=span)
+            if history:
+                logger.info("✅ Serving history from Supabase cache (%d data points, span=%s)", len(history), span)
+                return JSONResponse(
+                    content=history,
+                    headers={
+                        "Cache-Control": "public, max-age=120",
+                        "X-Data-Source": "supabase-cache"
+                    }
+                )
+        except Exception as e:
+            logger.warning("Supabase history fetch failed, falling back to Robinhood: %s", e)
+
+    # Fallback to Robinhood direct fetch
     try:
         bounds = "trading" if span == "day" else "regular"
         data = await get_portfolio_performance(span=span, interval=interval, bounds=bounds, starting_cash=starting_cash, max_points=max_points)
-        # Cache history data for 2 minutes (it's expensive to compute)
+        # Also cache to Supabase for next time
+        if supabase and data:
+            asyncio.create_task(_supabase_upsert_history(data, span=span))
         return JSONResponse(
             content=data,
             headers={
                 "Cache-Control": "public, max-age=120",
-                "ETag": f"{hash(str(data))}"
+                "X-Data-Source": "robinhood-direct"
             }
         )
     except Exception as e:
-        logger.exception("Error computing portfolio history")
+        logger.exception("Error computing portfolio history from Robinhood")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -251,13 +388,13 @@ async def api_trades():
 
 @app.post("/api/portfolio/sync")
 async def api_manual_sync():
-    """Trigger a manual sync (rate-limited by sync lock)."""
+    """Trigger a manual sync of all data (trades, positions, history) - rate-limited by sync lock."""
     # schedule sync asynchronously but return quickly
     if _sync_lock.locked():
         return {"message": "Sync already in progress"}
     # run the sync task in the event loop (not blocking)
-    asyncio.create_task(sync_trades())
-    return {"message": "Manual sync started"}
+    asyncio.create_task(sync_all_data())
+    return {"message": "Manual sync started for all data (trades, positions, history)"}
 
 
 # -------------------------
@@ -281,8 +418,8 @@ async def startup_event():
     if RUN_SCHEDULER:
         if not scheduler.running:
             logger.info("Starting background scheduler (interval=%d min).", SYNC_INTERVAL_MINUTES)
-            # Add trade sync job
-            scheduler.add_job(sync_trades, "interval", minutes=SYNC_INTERVAL_MINUTES, id="sync_trades", replace_existing=True)
+            # Add data sync job (trades, positions, history)
+            scheduler.add_job(sync_all_data, "interval", minutes=SYNC_INTERVAL_MINUTES, id="sync_all_data", replace_existing=True)
             # Add session refresh job (runs daily to keep session alive)
             scheduler.add_job(refresh_session_async, "interval", hours=12, id="refresh_session", replace_existing=True)
             scheduler.start()
@@ -302,8 +439,8 @@ async def startup_event():
 
         # run initial sync (don't block startup for too long)
         try:
-            # do first sync but do not block startup for extended time
-            await sync_trades()
+            # do first sync of all data but do not block startup for extended time
+            await sync_all_data()
         except Exception:
             logger.exception("Initial sync error (continuing).")
 
